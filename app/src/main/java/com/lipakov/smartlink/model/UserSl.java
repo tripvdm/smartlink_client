@@ -1,6 +1,8 @@
 package com.lipakov.smartlink.model;
 
-public class UserSl {
+import java.io.Serializable;
+
+public class UserSl implements Serializable {
     private String email;
     private String login;
 

@@ -1,8 +1,10 @@
 package com.lipakov.smartlink.model;
 
+import java.io.Serializable;
+
 import kotlin.jvm.Transient;
 
-public class SmartLink {
+public class SmartLink implements Serializable {
     private String urlOfPhoto;
     private String urlOfLink;
     private String title;

@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.lipakov.smartlink.model.SmartLink;
+import com.lipakov.smartlink.presenter.UserPresenter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,8 @@ public class SmartLinkViewModel extends ViewModel {
 
     private final MutableLiveData<List<SmartLink>> smartLinkLiveData;
     private final List<SmartLink> smartLinkList = new ArrayList<>();
+
+    private UserPresenter userPresenter;
 
     /**TODO Call Rest API**/
     public SmartLinkViewModel() {

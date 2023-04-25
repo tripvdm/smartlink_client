@@ -2,8 +2,6 @@ package com.lipakov.smartlink.view;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -11,7 +9,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.lipakov.smartlink.presenter.SmartLinkPresenter;
 
-public class AddingOfSmartLinkListener implements DialogInterface.OnClickListener, SmartLinkPresenter.SmartLinkView {
+public class AddingOfSmartLinkListener implements SmartLinkPresenter.SmartLinkView {
     private final Context context;
     private final EditText editText;
     private final ProgressDialog progressDialog;
@@ -26,8 +24,7 @@ public class AddingOfSmartLinkListener implements DialogInterface.OnClickListene
         this.alertDialog = alertDialog;
     }
 
-    @Override
-    public void onClick(DialogInterface dialog, int which) {
+    public void onClick() {
         SmartLinkPresenter smartLinkPresenter = new SmartLinkPresenter(context, this);
         smartLinkPresenter.addSmartLink(editText.toString());
     }
@@ -35,9 +32,6 @@ public class AddingOfSmartLinkListener implements DialogInterface.OnClickListene
     @Override
     public void showNotify(String notify) {
         Toast.makeText(context, notify, Toast.LENGTH_SHORT).show();
-        if(editText.getParent() != null) {
-            ((ViewGroup)editText.getParent()).removeView(editText);
-        }
         alertDialog.show();
         progressDialog.dismiss();
     }

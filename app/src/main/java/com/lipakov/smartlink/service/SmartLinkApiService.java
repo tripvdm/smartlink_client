@@ -7,7 +7,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.example.buylink.R;
-import com.lipakov.smartlink.model.SmartLink;
+import com.lipakov.smartlink.service.api.InsertApi;
 import com.lipakov.smartlink.service.api.SmartLinkApi;
 
 import java.io.InputStream;
@@ -39,8 +39,11 @@ public class SmartLinkApiService {
     private final Retrofit retrofit;
     private final Context context;
 
-    public SmartLinkApiService(Context context) {
+    private final InsertApi insertApi;
+
+    public SmartLinkApiService(Context context, InsertApi insertApi) {
         this.context = context;
+        this.insertApi = insertApi;
         retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -48,9 +51,9 @@ public class SmartLinkApiService {
                 .build();
     }
 
-    public void callResponse(final Emitter emitter, final SmartLink smartLink) {
+    public void callResponse(final Emitter emitter) {
         SmartLinkApi smartLinkApi = retrofit.create(SmartLinkApi.class);
-        Call<ResponseBody> call = smartLinkApi.addSmartLink(smartLink);
+        Call<ResponseBody> call = insertApi.addData(smartLinkApi);
         call.enqueue(new Callback<>() {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
