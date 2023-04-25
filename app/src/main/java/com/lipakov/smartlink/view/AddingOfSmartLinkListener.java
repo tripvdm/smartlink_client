@@ -1,29 +1,45 @@
 package com.lipakov.smartlink.view;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.text.Editable;
+import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
 
 import com.lipakov.smartlink.presenter.SmartLinkPresenter;
 
 public class AddingOfSmartLinkListener implements DialogInterface.OnClickListener, SmartLinkPresenter.SmartLinkView {
     private final Context context;
-    private final Editable editable;
+    private final EditText editText;
+    private final ProgressDialog progressDialog;
+    private final AlertDialog alertDialog;
 
-    public AddingOfSmartLinkListener(Context context, Editable editable) {
+    public AddingOfSmartLinkListener(Context context, EditText editText,
+                                     ProgressDialog progressDialog,
+                                     AlertDialog alertDialog) {
         this.context = context;
-        this.editable = editable;
+        this.editText = editText;
+        this.progressDialog = progressDialog;
+        this.alertDialog = alertDialog;
     }
 
     @Override
-    public void onClick(android.content.DialogInterface dialog, int which) {
-        SmartLinkPresenter smartLinkPresenter = new SmartLinkPresenter(this);
-        smartLinkPresenter.addSmartLink(editable.toString());
+    public void onClick(DialogInterface dialog, int which) {
+        SmartLinkPresenter smartLinkPresenter = new SmartLinkPresenter(context, this);
+        smartLinkPresenter.addSmartLink(editText.toString());
     }
 
     @Override
     public void showNotify(String notify) {
         Toast.makeText(context, notify, Toast.LENGTH_SHORT).show();
+        if(editText.getParent() != null) {
+            ((ViewGroup)editText.getParent()).removeView(editText);
+        }
+        alertDialog.show();
+        progressDialog.dismiss();
     }
+
 }

@@ -1,13 +1,27 @@
 package com.lipakov.smartlink.service;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.example.buylink.R;
 import com.lipakov.smartlink.model.SmartLink;
 import com.lipakov.smartlink.service.api.SmartLinkApi;
 
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import io.reactivex.Emitter;
 import okhttp3.OkHttpClient;
@@ -20,22 +34,24 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class SmartLinkApiService {
     private static final String TAG = SmartLinkApiService.class.getSimpleName();
-    public static final String BASE_URL = "https://localhost:8080";
+    public static final String BASE_URL = "http://192.168.1.127:8080";
 
     private final Retrofit retrofit;
+    private final Context context;
 
-    public SmartLinkApiService() {
+    public SmartLinkApiService(Context context) {
+        this.context = context;
         retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
-                .client(getOkHttpClient())
+                .client(new OkHttpClient())
                 .build();
     }
 
     public void callResponse(final Emitter emitter, final SmartLink smartLink) {
         SmartLinkApi smartLinkApi = retrofit.create(SmartLinkApi.class);
         Call<ResponseBody> call = smartLinkApi.addSmartLink(smartLink);
-        call.enqueue(new Callback<  >() {
+        call.enqueue(new Callback<>() {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                 Log.i(TAG, response.message());
@@ -50,10 +66,53 @@ public class SmartLinkApiService {
         });
     }
 
-    private OkHttpClient getOkHttpClient() {
-        return new OkHttpClient.Builder()
-                .readTimeout(20, TimeUnit.SECONDS)
-                .build();
+    public OkHttpClient getUnsafeOkHttpClient() {
+        try {
+            @SuppressLint("CustomX509TrustManager")
+            final TrustManager[] trustAllCerts = new TrustManager[]{
+                    new X509TrustManager() {
+                        @Override
+                        public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) {}
+
+                        @Override
+                        public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) {}
+
+                        @Override
+                        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                            return new X509Certificate[]{};
+                        }
+                    }
+            };
+            KeyStore keyStore = readKeyStore();
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            kmf.init(keyStore, "smartlink.p12".toCharArray());
+            KeyManager[] keyManagers = kmf.getKeyManagers();
+            final SSLContext sslContext = SSLContext.getInstance("SSL");
+            sslContext.init(keyManagers, trustAllCerts, new SecureRandom());
+            final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+            OkHttpClient.Builder builder = new OkHttpClient.Builder();
+            builder.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0])
+                    .hostnameVerifier((hostname, session) -> true)
+                    .readTimeout(20, TimeUnit.SECONDS);
+            return builder.build();
+        } catch (final Exception e) {
+            Log.e(TAG, e.getLocalizedMessage());
+            return new OkHttpClient();
+        }
+    }
+
+    private KeyStore readKeyStore() {
+        KeyStore ks = null;
+        InputStream in;
+        try {
+            ks = KeyStore.getInstance("PKCS12");
+            char[] password = "chinatown".toCharArray();
+            in = context.getResources().openRawResource(R.raw.smartlink);
+            ks.load(in, password);
+        } catch (Exception e) {
+            Log.e(TAG, e.getLocalizedMessage());
+        }
+        return ks;
     }
 
 }

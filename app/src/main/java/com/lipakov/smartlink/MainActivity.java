@@ -1,6 +1,7 @@
 package com.lipakov.smartlink;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.content.ContextCompat;
@@ -166,12 +168,17 @@ public class MainActivity extends AppCompatActivity
         final int itemId = item.getItemId();
         if (itemId == R.id.addURL) {
             EditText urlInput = UtilsUI.createEditText(MainActivity.this);
-            new MaterialAlertDialogBuilder(this)
+            ProgressDialog progressDialog = UtilsUI.createProgressDialog(this);
+            MaterialAlertDialogBuilder materialAlertDialogBuilder = new MaterialAlertDialogBuilder(this)
                     .setTitle("Add utl to field")
                     .setView(urlInput)
-                    .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
+                    .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+            materialAlertDialogBuilder
                     .setPositiveButton("Confirm", (dialog, which) -> {
-                        AddingOfSmartLinkListener dialogInterface = new AddingOfSmartLinkListener(getApplicationContext(), urlInput.getText());
+                        progressDialog.show();
+                        AlertDialog alertDialog = materialAlertDialogBuilder.create();
+                        AddingOfSmartLinkListener dialogInterface = new AddingOfSmartLinkListener(getApplicationContext(),
+                                        urlInput, progressDialog, alertDialog);
                         dialogInterface.onClick(dialog, which);
                     }).show();
         } else if (itemId == R.id.settings) {

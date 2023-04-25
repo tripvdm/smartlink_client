@@ -1,5 +1,6 @@
 package com.lipakov.smartlink.utils;
 
+import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
@@ -36,6 +37,13 @@ public class UtilsUI {
                 LinearLayout.LayoutParams.MATCH_PARENT);
         input.setLayoutParams(lp);
         return input;
+    }
+
+    public static ProgressDialog createProgressDialog(MainActivity activity) {
+        ProgressDialog progressDialog = new ProgressDialog(activity);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setMessage("EXPECTING...");
+        return progressDialog;
     }
 
 }

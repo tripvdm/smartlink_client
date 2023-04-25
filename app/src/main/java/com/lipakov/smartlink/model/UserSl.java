@@ -1,6 +1,6 @@
 package com.lipakov.smartlink.model;
 
-public class User {
+public class UserSl {
     private String email;
     private String login;
 
