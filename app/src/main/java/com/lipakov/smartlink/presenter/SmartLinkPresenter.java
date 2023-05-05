@@ -3,10 +3,11 @@ package com.lipakov.smartlink.presenter;
 import android.content.Context;
 
 import com.lipakov.smartlink.model.SmartLink;
+import com.lipakov.smartlink.model.UserSl;
 import com.lipakov.smartlink.service.api.InsertApi;
 import com.lipakov.smartlink.service.SmartLinkApiService;
 import com.lipakov.smartlink.service.SmartLinkService;
-import com.lipakov.smartlink.service.api.SmartLinkApi;
+import com.lipakov.smartlink.service.api.RestApi;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
@@ -32,6 +33,7 @@ public class SmartLinkPresenter implements InsertApi {
         Observable.create((ObservableOnSubscribe<SmartLink>) emitter -> {
                     SmartLinkService nlpSmartLinkService = new SmartLinkService();
                     smartLink = nlpSmartLinkService.findSmartLink(urlOfLink);
+                    smartLink.setUserSl(new UserSl());
                     smartLinkApiService.callResponse(emitter);
                 }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -40,8 +42,8 @@ public class SmartLinkPresenter implements InsertApi {
     }
 
     @Override
-    public Call<ResponseBody> addData(SmartLinkApi smartLinkApi) {
-        return smartLinkApi.addSmartLink(smartLink);
+    public Call<ResponseBody> addData(RestApi restApi) {
+        return restApi.addSmartLink(smartLink);
     }
 
     public interface SmartLinkView {

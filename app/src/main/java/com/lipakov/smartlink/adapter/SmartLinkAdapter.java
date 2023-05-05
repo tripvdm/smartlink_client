@@ -1,51 +1,54 @@
 package com.lipakov.smartlink.adapter;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.buylink.R;
+import com.lipakov.smartlink.databinding.SmartLinkBinding;
 import com.lipakov.smartlink.model.SmartLink;
 import com.lipakov.smartlink.utils.UtilsUI;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 public class SmartLinkAdapter extends RecyclerView.Adapter<SmartLinkAdapter.SmartLinkViewHolder> implements Filterable {
     private static final String TAG = SmartLinkAdapter.class.getSimpleName();
 
+    private SmartLinkBinding smartLinkBinding;
     private List<SmartLink> smartLinkList = new ArrayList<>();
     private List<SmartLink> filterSmartLinkList = new ArrayList<>();
+
+    private Context context;
+
+    public SmartLinkAdapter(Context context) {
+        this.context = context;
+    }
 
     @NonNull
     @Override
     public SmartLinkViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View rootView = LayoutInflater.from(parent.getContext()).inflate(R.layout.smart_link, parent, false);
-        return new SmartLinkViewHolder(rootView);
+        smartLinkBinding = SmartLinkBinding.inflate(LayoutInflater.from(context), parent,false);
+        return new SmartLinkViewHolder(smartLinkBinding);
     }
 
     @Override
     public void onBindViewHolder(@NonNull SmartLinkViewHolder holder, int position) {
         final SmartLink smartLink = smartLinkList.get(position);
-        Bitmap bitmap = UtilsUI.convertFileToBitmap(smartLink.getUrlOfPhoto());
-        holder.photoOfSmartLink.setImageBitmap(bitmap);
-        holder.nameOfSmartLink.setText(smartLink.getTitle());
+        Bitmap bitmap = UtilsUI.convertFileToBitmap(smartLink.getUrl());
+        holder.smartLinkBinding.photoOfSmartLink.setImageBitmap(bitmap);
+        holder.smartLinkBinding.nameOfSmartLink.setText(smartLink.getTitle());
         String price = String.valueOf(smartLink.getPrice());
-        holder.priceOfSmartLink.setText(price);
-        holder.contactNumberOfSmartLink.setText(smartLink.getContactNumber());
+        holder.smartLinkBinding.priceOfSmartLink.setText(price);
+        holder.smartLinkBinding.contactNumberOfSmartLink.setText(smartLink.getPhoneNumber());
     }
 
     @Override
@@ -65,7 +68,7 @@ public class SmartLinkAdapter extends RecyclerView.Adapter<SmartLinkAdapter.Smar
                     for (SmartLink smartLink : smartLinkList) {
                         final String name = smartLink.getTitle();
                         final String price = String.valueOf(smartLink.getPrice());
-                        final String contactNumber = smartLink.getContactNumber();
+                        final String contactNumber = smartLink.getPhoneNumber();
                         if (name.toLowerCase().contains(constraint) ||
                                                 price.contains(constraint) ||
                                                 contactNumber.contains(constraint)) {
@@ -102,26 +105,10 @@ public class SmartLinkAdapter extends RecyclerView.Adapter<SmartLinkAdapter.Smar
     }
 
     static class SmartLinkViewHolder extends RecyclerView.ViewHolder {
-
-        @SuppressLint("NonConstantResourceId")
-        @BindView(R.id.photoOfSmartLink)
-        ImageView photoOfSmartLink;
-
-        @SuppressLint("NonConstantResourceId")
-        @BindView(R.id.nameOfSmartLink)
-        TextView nameOfSmartLink;
-
-        @SuppressLint("NonConstantResourceId")
-        @BindView(R.id.priceOfSmartLink)
-        TextView priceOfSmartLink;
-
-        @SuppressLint("NonConstantResourceId")
-        @BindView(R.id.contactNumberOfSmartLink)
-        TextView contactNumberOfSmartLink;
-
-        public SmartLinkViewHolder(@NonNull View itemView) {
-            super(itemView);
-            ButterKnife.bind(this, itemView);
+        private SmartLinkBinding smartLinkBinding;
+        public SmartLinkViewHolder(@NonNull SmartLinkBinding smartLinkBinding) {
+            super(smartLinkBinding.getRoot());
+            this.smartLinkBinding = smartLinkBinding;
         }
     }
 }

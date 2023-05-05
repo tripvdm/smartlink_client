@@ -6,14 +6,15 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.example.buylink.R;
+import com.lipakov.smartlink.R;
 import com.lipakov.smartlink.service.api.InsertApi;
-import com.lipakov.smartlink.service.api.SmartLinkApi;
+import com.lipakov.smartlink.service.api.RestApi;
 
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.KeyManager;
@@ -34,7 +35,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class SmartLinkApiService {
     private static final String TAG = SmartLinkApiService.class.getSimpleName();
-    public static final String BASE_URL = "http://192.168.1.127:8080";
+    public static final String BASE_URL = "http://192.168.43.254:8080";
 
     private final Retrofit retrofit;
     private final Context context;
@@ -44,16 +45,18 @@ public class SmartLinkApiService {
     public SmartLinkApiService(Context context, InsertApi insertApi) {
         this.context = context;
         this.insertApi = insertApi;
+        OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                .readTimeout( 20, TimeUnit.SECONDS);
         retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
-                .client(new OkHttpClient())
+                .client(builder.build())
                 .build();
     }
 
     public void callResponse(final Emitter emitter) {
-        SmartLinkApi smartLinkApi = retrofit.create(SmartLinkApi.class);
-        Call<ResponseBody> call = insertApi.addData(smartLinkApi);
+        RestApi restApi = retrofit.create(RestApi.class);
+        Call<ResponseBody> call = insertApi.addData(restApi);
         call.enqueue(new Callback<>() {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
@@ -63,7 +66,8 @@ public class SmartLinkApiService {
 
             @Override
             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                Log.e(TAG, t.getLocalizedMessage());
+                String stackTrace = Arrays.toString(t.getStackTrace());
+                Log.e(TAG, stackTrace);
                 emitter.onComplete();
             }
         });

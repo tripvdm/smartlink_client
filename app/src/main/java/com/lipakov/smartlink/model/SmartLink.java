@@ -1,32 +1,35 @@
 package com.lipakov.smartlink.model;
 
-import java.io.Serializable;
-
 import kotlin.jvm.Transient;
 
-public class SmartLink implements Serializable {
-    private String urlOfPhoto;
-    private String urlOfLink;
+public class SmartLink {
+    private long id;
+    private String photo;
     private String title;
+    private String url;
     private String price;
-    private String contactNumber;
+    private String phoneNumber;
+    private UserSl userSl;
+
     @Transient
     private String message;
 
-    public String getUrlOfPhoto() {
-        return urlOfPhoto;
+    public SmartLink() { }
+
+    public long getId() {
+        return id;
     }
 
-    public void setUrlOfPhoto(String urlOfPhoto) {
-        this.urlOfPhoto = urlOfPhoto;
+    public void setId(long id) {
+        this.id = id;
     }
 
-    public String getUrlOfLink() {
-        return urlOfLink;
+    public String getPhoto() {
+        return photo;
     }
 
-    public void setUrlOfLink(String urlOfLink) {
-        this.urlOfLink = urlOfLink;
+    public void setPhoto(String photo) {
+        this.photo = photo;
     }
 
     public String getTitle() {
@@ -37,6 +40,14 @@ public class SmartLink implements Serializable {
         this.title = title;
     }
 
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
     public String getPrice() {
         return price;
     }
@@ -45,12 +56,20 @@ public class SmartLink implements Serializable {
         this.price = price;
     }
 
-    public String getContactNumber() {
-        return contactNumber;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setContactNumber(String contactNumber) {
-        this.contactNumber = contactNumber;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public UserSl getUserSl() {
+        return userSl;
+    }
+
+    public void setUserSl(UserSl userSl) {
+        this.userSl = userSl;
     }
 
     public String getMessage() {

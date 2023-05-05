@@ -24,10 +24,10 @@ public class SmartLinkService {
 
     private SmartLink getSmartLink(String url) {
         SmartLink smartLink = new SmartLink();
-        smartLink.setUrlOfPhoto(photoFinder.findElement(url));
+        smartLink.setPhoto(photoFinder.findElement(url));
         smartLink.setTitle(titleFinder.findElement(url));
         smartLink.setPrice(priceFinder.findElement(url));
-        smartLink.setUrlOfPhoto(phoneNumberFinder.findElement(url));
+        smartLink.setUrl(phoneNumberFinder.findElement(url));
         return smartLink;
     }
 

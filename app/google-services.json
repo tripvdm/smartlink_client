@@ -1,1 +1,47 @@
-{"installed":{"client_id":"183873228358-j31a27kj54jpp0qotolqpeqr4iltlp9f.apps.googleusercontent.com","project_id":"buylink-381814","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs"}}
+{
+  "project_info": {
+    "project_number": "511615462095",
+    "project_id": "smartlink-ad81d",
+    "storage_bucket": "smartlink-ad81d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:511615462095:android:1e863d83cfb13bbef7a5ba",
+        "android_client_info": {
+          "package_name": "com.lipakov.smartlink"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "511615462095-fdo3lbnpp5eeoeiaj16i5u2leohe6u7i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.lipakov.smartlink",
+            "certificate_hash": "c3e06de76f64261c25c19913f9aa98063909c732"
+          }
+        },
+        {
+          "client_id": "511615462095-aferrm80rf5fplvaj920ji0v8b6k7eeq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFceVvpATjTzLhjrmEBRAR-UOhy4q5VSc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "511615462095-aferrm80rf5fplvaj920ji0v8b6k7eeq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

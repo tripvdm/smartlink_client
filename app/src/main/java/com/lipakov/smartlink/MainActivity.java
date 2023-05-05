@@ -1,6 +1,5 @@
 package com.lipakov.smartlink;
 
-import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -29,7 +28,6 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import com.example.buylink.R;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -38,74 +36,98 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
+import com.google.firebase.FirebaseApp;
+import com.lipakov.smartlink.databinding.ActivityMainBinding;
 import com.lipakov.smartlink.presenter.UserPresenter;
 import com.lipakov.smartlink.utils.UtilsUI;
 import com.lipakov.smartlink.view.AddingOfSmartLinkListener;
 
 import org.apache.commons.validator.routines.UrlValidator;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+import io.reactivex.disposables.Disposable;
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, UserPresenter.DisplayView {
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int FIRST_SELECTED_ELEMENT_OF_NAVIGATION_VIEW = 0;
 
-    @SuppressLint("NonConstantResourceId")
-    @BindView(R.id.drawerLayout)
-    DrawerLayout drawerLayout;
-
-    @SuppressLint("NonConstantResourceId")
-    @BindView(R.id.navigationView)
-    NavigationView navigationView;
+    private ActivityMainBinding activityMainBinding;
 
     private ActionBarDrawerToggle drawerToggle;
-    /*TODO need for onActivityResult*/
+
+    private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
+
+    private LinearProgressIndicator linearProgressIndicator;
     private Intent signInIntent;
+    private GoogleSignInClient googleSignInClient;
+    private UserPresenter userPresenter;
+    private Disposable userDisposable;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
-        displayMainActivity(getString(R.string.app_name));
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .build();
-        /**TODO after release app**/
-        GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-        signInIntent = mGoogleSignInClient.getSignInIntent();
-        signInActivityResultLauncher.launch(signInIntent);
+        activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(activityMainBinding.getRoot());
+        initViews();
+        initSignInIntent();
+        String login = getPrefLoginFromUserPresenter();
+        if (login.isBlank()) {
+            signInActivityResultLauncher.launch(signInIntent);
+        } else {
+            displayMainActivity(login);
+        }
     }
 
-    private final ActivityResultLauncher<Intent> signInActivityResultLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(), this::onActivityResult);
+    private void initViews() {
+        drawerLayout = activityMainBinding.drawerLayout;
+        navigationView = activityMainBinding.navigationView;
+        linearProgressIndicator = activityMainBinding.linearProgressBar;
+    }
+
+    private void initSignInIntent() {
+        FirebaseApp.initializeApp(this);
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        googleSignInClient = GoogleSignIn.getClient(this, gso);
+        signInIntent = googleSignInClient.getSignInIntent();
+    }
+
+    private String getPrefLoginFromUserPresenter() {
+        userPresenter = new UserPresenter(getApplicationContext(), this);
+        return userPresenter.getSharedPreferences().getString("login", "");
+    }
+
+    private final ActivityResultLauncher<Intent> signInActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), this::onActivityResult);
 
     private void onActivityResult(ActivityResult result) {
         Intent data = result.getData();
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-        if (account == null) {
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            try {
-                account = task.getResult(ApiException.class);
-                UserPresenter userPresenter = new UserPresenter(getApplicationContext(), MainActivity.this);
-                userPresenter.addUser(account);
-            } catch (ApiException e) {
-                Log.e("TAG", "Google sign in failed: " + e.getMessage());
-                /*TODO  signInActivityResultLauncher.launch(signInIntent) */
-            }
-        } else {
-            displayMainActivity(account.getDisplayName());
+        Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+        try {
+            linearProgressIndicator.setIndeterminate(true);
+            userDisposable = addUser(task);
+        } catch (ApiException e) {
+            Log.e(TAG, e.getLocalizedMessage());
+            signInActivityResultLauncher.launch(signInIntent);
         }
+    }
+
+    private Disposable addUser(Task<GoogleSignInAccount> task) throws ApiException {
+        GoogleSignInAccount account = task.getResult(ApiException.class);
+        return userPresenter.addUser(account);
     }
 
     @Override
     public void displayMainActivity(String displayLogin) {
+        linearProgressIndicator.setIndeterminate(false);
         setActionBar(displayLogin);
-        navigationView.setNavigationItemSelectedListener(this);
+        activityMainBinding.navigationView.setNavigationItemSelectedListener(this);
         initSelectedElementOfNavigationView();
-        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
-                null, R.string.open, R.string.close);
+        drawerLayout = activityMainBinding.drawerLayout;
+        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, null, R.string.open, R.string.close);
         drawerLayout.addDrawerListener(drawerToggle);
     }
 
@@ -115,9 +137,21 @@ public class MainActivity extends AppCompatActivity
             actionBar.setTitle(displayName);
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeButtonEnabled(true);
-            actionBar.setBackgroundDrawable(
-                    ContextCompat.getDrawable(getApplicationContext(), R.color.colorPrimary));
+            actionBar.setBackgroundDrawable(ContextCompat.getDrawable(getApplicationContext(), R.color.colorPrimary));
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        if (userDisposable != null) {
+            userDisposable.dispose();
+        }
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -189,10 +223,11 @@ public class MainActivity extends AppCompatActivity
             });
             positiveButton.setOnClickListener(view -> handlerOfPositiveButton(urlInput, alertDialog, progressDialog));
         } else if (itemId == R.id.settings) {
-            /* TODO Добавить Настройки */
-        } else if (itemId == R.id.exit) {
-            MainActivity.this.finish();
-            System.exit(0);
+            Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(settingsIntent);
+        } else if (itemId == R.id.signOut) {
+            googleSignInClient.signOut();
+            signInActivityResultLauncher.launch(signInIntent);
         }
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
@@ -209,11 +244,11 @@ public class MainActivity extends AppCompatActivity
 
     private AlertDialog getAlertDialog(EditText urlInput) {
         return new MaterialAlertDialogBuilder(this)
-                .setTitle("Add URL")
+                .setMessage(getString(R.string.please_input_url))
                 .setCancelable(false)
                 .setView(urlInput)
-                .setNegativeButton("Cancel", (dialogInterface, i) -> {})
-                .setPositiveButton("Confirm", (dialogInterface, i) -> {})
+                .setNegativeButton(getString(R.string.cancel), (dialogInterface, i) -> {})
+                .setPositiveButton(getString(R.string.confirm), (dialogInterface, i) -> {})
                 .show();
     }
 
