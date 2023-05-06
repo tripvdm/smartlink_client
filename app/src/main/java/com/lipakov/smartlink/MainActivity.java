@@ -38,7 +38,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.firebase.FirebaseApp;
+import com.google.gson.Gson;
 import com.lipakov.smartlink.databinding.ActivityMainBinding;
+import com.lipakov.smartlink.model.UserSl;
 import com.lipakov.smartlink.presenter.UserPresenter;
 import com.lipakov.smartlink.utils.UtilsUI;
 import com.lipakov.smartlink.view.AddingOfSmartLinkListener;
@@ -48,11 +50,10 @@ import org.apache.commons.validator.routines.UrlValidator;
 import io.reactivex.disposables.Disposable;
 
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, UserPresenter.DisplayView {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, UserPresenter.DisplayView {
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int FIRST_SELECTED_ELEMENT_OF_NAVIGATION_VIEW = 0;
-
+    private static final String SEARCH_KEY = "search";
     private ActivityMainBinding activityMainBinding;
 
     private ActionBarDrawerToggle drawerToggle;
@@ -65,18 +66,31 @@ public class MainActivity extends AppCompatActivity
     private GoogleSignInClient googleSignInClient;
     private UserPresenter userPresenter;
     private Disposable userDisposable;
+
+    private SearchView searchView;
+    private Bundle savedInstanceState;
+
+    private final ActivityResultLauncher<Intent> signInActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), this::onActivityResult);
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.savedInstanceState = savedInstanceState;
         activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(activityMainBinding.getRoot());
         initViews();
         initSignInIntent();
-        String login = getPrefLoginFromUserPresenter();
-        if (login.isBlank()) {
+        String jsonUserSl = getJsonUserSlFromUserPresenter();
+        signInApp(jsonUserSl);
+    }
+
+    private void signInApp(String jsonUserSl) {
+        if (jsonUserSl.isBlank()) {
             signInActivityResultLauncher.launch(signInIntent);
         } else {
-            displayMainActivity(login);
+            Gson gson = new Gson();
+            UserSl userSl = gson.fromJson(jsonUserSl, UserSl.class);
+            displayMainActivity(userSl.getLogin());
         }
     }
 
@@ -96,12 +110,10 @@ public class MainActivity extends AppCompatActivity
         signInIntent = googleSignInClient.getSignInIntent();
     }
 
-    private String getPrefLoginFromUserPresenter() {
+    private String getJsonUserSlFromUserPresenter() {
         userPresenter = new UserPresenter(getApplicationContext(), this);
-        return userPresenter.getSharedPreferences().getString("login", "");
+        return userPresenter.getSharedPreferences().getString("usersl", "");
     }
-
-    private final ActivityResultLauncher<Intent> signInActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), this::onActivityResult);
 
     private void onActivityResult(ActivityResult result) {
         Intent data = result.getData();
@@ -142,16 +154,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
         if (userDisposable != null) {
             userDisposable.dispose();
         }
-    }
-
-    @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
+        if (searchView != null) {
+            outState.putString(SEARCH_KEY, String.valueOf(searchView.getQuery()));
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -161,7 +171,11 @@ public class MainActivity extends AppCompatActivity
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.toolbar_menu, menu);
         MenuItem menuItem = menu.findItem(R.id.searchOfLink);
-        SearchView searchView = (SearchView) menuItem.getActionView();
+        searchView = (SearchView) menuItem.getActionView();
+        searchView.setMaxWidth(Integer.MAX_VALUE);
+        if (savedInstanceState != null) {
+            setParamsForSearchView(menuItem);
+        }
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -174,6 +188,14 @@ public class MainActivity extends AppCompatActivity
             }
         });
         return true;
+    }
+
+    private void setParamsForSearchView(MenuItem menuItem) {
+        String searchViewText = String.valueOf(savedInstanceState.get(SEARCH_KEY));
+        menuItem.expandActionView();
+        searchView.setQuery(searchViewText, true);
+        searchView.clearFocus();
+        searchView.setIconified(false);
     }
 
     @Override
@@ -193,6 +215,16 @@ public class MainActivity extends AppCompatActivity
         super.onPostCreate(savedInstanceState);
         if (drawerToggle != null) {
             drawerToggle.syncState();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (searchView != null && !searchView.isIconified()) {
+            searchView.setIconified(true);
+        }
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
         }
     }
 

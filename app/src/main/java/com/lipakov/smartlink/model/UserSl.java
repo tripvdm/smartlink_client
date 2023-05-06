@@ -1,13 +1,14 @@
 package com.lipakov.smartlink.model;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedList;
+import java.util.List;
 
 public class UserSl {
     private long id;
     private String login;
     private String email;
-    private Set<SmartLink> smartLinks = new HashSet<>();
+    /*@TODO smartLinks добавляет не уникальные модели*/
+    private List<SmartLink> smartLinks = new LinkedList<>();
 
     public UserSl() { }
     public long getId() {
@@ -34,11 +35,11 @@ public class UserSl {
         this.email = email;
     }
 
-    public Set<SmartLink> getSmartLinks() {
+    public List<SmartLink> getSmartLinks() {
         return smartLinks;
     }
 
-    public void setSmartLinks(Set<SmartLink> smartLinks) {
+    public void setSmartLinks(List<SmartLink> smartLinks) {
         this.smartLinks = smartLinks;
     }
 }

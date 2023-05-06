@@ -35,7 +35,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class SmartLinkApiService {
     private static final String TAG = SmartLinkApiService.class.getSimpleName();
-    public static final String BASE_URL = "http://192.168.43.254:8080";
+    public static final String BASE_URL = "http://192.168.1.127:8080";
 
     private final Retrofit retrofit;
     private final Context context;
@@ -46,7 +46,7 @@ public class SmartLinkApiService {
         this.context = context;
         this.insertApi = insertApi;
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
-                .readTimeout( 20, TimeUnit.SECONDS);
+                .readTimeout(20, TimeUnit.SECONDS);
         retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -60,7 +60,7 @@ public class SmartLinkApiService {
         call.enqueue(new Callback<>() {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                Log.i(TAG, response.message());
+                    Log.i(TAG, response.message());
                 emitter.onComplete();
             }
 

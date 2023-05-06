@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.gson.Gson;
 import com.lipakov.smartlink.model.SmartLink;
 import com.lipakov.smartlink.model.UserSl;
 import com.lipakov.smartlink.service.SmartLinkApiService;
@@ -27,7 +28,7 @@ public class UserPresenter implements InsertApi {
     private final DisplayView displayView;
     private final SmartLinkApiService smartLinkApiService;
     private SharedPreferences sharedPreferences;
-    UserSl userSl = new UserSl();
+    private final UserSl userSl = new UserSl();
     public UserPresenter(Context context, DisplayView displayView) {
         this.displayView = displayView;
         smartLinkApiService = new SmartLinkApiService(context, this);
@@ -38,18 +39,20 @@ public class UserPresenter implements InsertApi {
         int threadCt = Runtime.getRuntime().availableProcessors() + 1;
         ExecutorService executor = Executors.newFixedThreadPool(threadCt);
         return Observable.create((ObservableOnSubscribe<SmartLink>) emitter -> {
-                    userSl.setLogin(account.getDisplayName());
-                    userSl.setEmail(account.getEmail());
-                    sharedPreferences.edit()
-                            .putString("login", account.getGivenName())
-                            .apply();
+                    putUserSl(account);
                     smartLinkApiService.callResponse(emitter);
         }).subscribeOn(Schedulers.from(executor))
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnComplete(() -> {
-                    displayView.displayMainActivity(account.getGivenName());
-                })
+                .doOnComplete(() -> displayView.displayMainActivity(account.getGivenName()))
                 .subscribe();
+    }
+
+    private void putUserSl(GoogleSignInAccount account) {
+        Gson gson = new Gson();
+        userSl.setLogin(account.getDisplayName());
+        userSl.setEmail(account.getEmail());
+        String jsonText = gson.toJson(userSl);
+        sharedPreferences.edit().putString("usersl", jsonText).apply();
     }
 
     public SharedPreferences getSharedPreferences() {
