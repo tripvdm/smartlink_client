@@ -15,9 +15,7 @@ public class AddingOfSmartLinkListener implements SmartLinkPresenter.SmartLinkVi
     private final ProgressDialog progressDialog;
     private final AlertDialog alertDialog;
 
-    public AddingOfSmartLinkListener(Context context, EditText editText,
-                                     ProgressDialog progressDialog,
-                                     AlertDialog alertDialog) {
+    public AddingOfSmartLinkListener(Context context, EditText editText, ProgressDialog progressDialog, AlertDialog alertDialog) {
         this.context = context;
         this.editText = editText;
         this.progressDialog = progressDialog;
@@ -26,7 +24,7 @@ public class AddingOfSmartLinkListener implements SmartLinkPresenter.SmartLinkVi
 
     public void onClick() {
         SmartLinkPresenter smartLinkPresenter = new SmartLinkPresenter(context, this);
-        smartLinkPresenter.addSmartLink(editText.toString());
+        smartLinkPresenter.addSmartLink(editText.getText().toString());
     }
 
     @Override

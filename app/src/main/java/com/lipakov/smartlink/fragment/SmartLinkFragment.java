@@ -35,8 +35,7 @@ public class SmartLinkFragment extends Fragment implements LifecycleOwner {
     @SuppressLint({"NewApi", "FragmentLiveDataObserve"})
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.smart_link_fragment, container, false);
         activityMainBinding = SmartLinkFragmentBinding.bind(view);
         recyclerView = activityMainBinding.recyclerViewOfSmartLinkList;
