@@ -10,47 +10,44 @@ import android.view.ViewGroup;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.lipakov.smartlink.R;
-import com.lipakov.smartlink.databinding.SmartLinkFragmentBinding;
 import com.lipakov.smartlink.adapter.SmartLinkAdapter;
-import com.lipakov.smartlink.model.SmartLink;
+import com.lipakov.smartlink.databinding.SmartLinkFragmentBinding;
 import com.lipakov.smartlink.viewmodel.SmartLinkViewModel;
-
-import java.util.List;
 
 
 public class SmartLinkFragment extends Fragment implements LifecycleOwner {
     private static final String TAG = SmartLinkFragment.class.getSimpleName();
+    private LinearProgressIndicator linearProgressIndicator;
 
-    private SmartLinkViewModel smartLinkViewModel;
-    private SmartLinkAdapter smartLinkAdapter;
-
-    private RecyclerView recyclerView;
-
-    private SmartLinkFragmentBinding activityMainBinding;
-    @SuppressLint({"NewApi", "FragmentLiveDataObserve"})
+    private SmartLinkFragmentBinding smartLinkFragmentBinding;
+    @SuppressLint({"NewApi", "FragmentLiveDataObserve", "NotifyDataSetChanged"})
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.smart_link_fragment, container, false);
-        activityMainBinding = SmartLinkFragmentBinding.bind(view);
-        recyclerView = activityMainBinding.recyclerViewOfSmartLinkList;
-        smartLinkAdapter = new SmartLinkAdapter(getContext());
-        recyclerView.setAdapter(smartLinkAdapter);
-        smartLinkViewModel = new ViewModelProvider(this).get(SmartLinkViewModel.class);
-        smartLinkViewModel.getSmartLinkLiveData().observe(this, userListUpdateObserver);
+        smartLinkFragmentBinding = SmartLinkFragmentBinding.bind(view);
+        linearProgressIndicator = smartLinkFragmentBinding.linearProgressBar;
+        linearProgressIndicator.setIndeterminate(true);
+        SmartLinkAdapter smartLinkAdapter = createAdapter();
+        SmartLinkViewModel smartLinkViewModel = new ViewModelProvider(this).get(SmartLinkViewModel.class);
+        smartLinkViewModel.getSmartLinkMutableLiveData(requireContext()).observe(this, response -> {
+            smartLinkAdapter.updateSmartLinkList(response);
+            linearProgressIndicator.setIndeterminate(false);
+        });
         return view;
     }
 
-    private final Observer<List<SmartLink>> userListUpdateObserver = new Observer<>() {
-        @Override
-        public void onChanged(List<SmartLink> smartLinkList) {
-            smartLinkAdapter.updateSmartLinkList(smartLinkList);
-        }
-    };
-
+    private SmartLinkAdapter createAdapter() {
+        RecyclerView recyclerView = smartLinkFragmentBinding.recyclerViewOfSmartLinkList;
+        SmartLinkAdapter smartLinkAdapter = new SmartLinkAdapter(getContext());
+        recyclerView.setAdapter(smartLinkAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        return smartLinkAdapter;
+    }
 }

@@ -3,26 +3,15 @@ package com.lipakov.smartlink.model;
 import kotlin.jvm.Transient;
 
 public class SmartLink {
-    private long id;
     private String photo;
     private String title;
     private String url;
     private String price;
     private String phoneNumber;
     private UserSl userSl;
-
     @Transient
     private String message;
-
     public SmartLink() { }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
 
     public String getPhoto() {
         return photo;

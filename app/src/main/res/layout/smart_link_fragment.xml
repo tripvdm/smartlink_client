@@ -5,30 +5,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.lipakov.smartlink.fragment.SmartLinkFragment">
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swipeContainerOfSmartLinkList"
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/linearProgressBar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <LinearLayout
+        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center">
+        <TextView
+            android:id="@+id/emptyViewOfSmartLinkList"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center">
-            <TextView
-                android:id="@+id/emptyViewOfSmartLinkList"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/list_of_smart_links_is_empty"
-                android:textColor="@color/colorPrimary"
-                android:textSize="16sp"
-                android:layout_gravity="center"
-                android:textAlignment="center"
-                android:visibility="gone" />
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerViewOfSmartLinkList"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scrollbars="vertical" />
-        </LinearLayout>
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            android:text="@string/list_of_smart_links_is_empty"
+            android:textColor="@color/colorPrimary"
+            android:textSize="16sp"
+            android:layout_gravity="center"
+            android:textAlignment="center"
+            android:visibility="gone" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewOfSmartLinkList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical" />
+    </LinearLayout>
 </RelativeLayout>

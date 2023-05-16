@@ -7,8 +7,9 @@ public class Title implements FinderOfValue {
     @Override
     public String findElement(Document document) {
         Elements metaOgTitle = document.select("meta[property=og:title]");
-        if (metaOgTitle != null) {
-            return metaOgTitle.attr("content");
+        String attr = metaOgTitle.attr("content");
+        if (!attr.isBlank()) {
+            return attr;
         } else {
             return document.title();
         }

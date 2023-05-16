@@ -30,14 +30,9 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class SmartLinkApiService {
     private static final String TAG = SmartLinkApiService.class.getSimpleName();
-    public static final String BASE_URL = "http://192.168.1.127:8080";
-
-    private final Retrofit retrofit;
     private final Context context;
 
     private final InsertApi insertApi;
@@ -45,30 +40,22 @@ public class SmartLinkApiService {
     public SmartLinkApiService(Context context, InsertApi insertApi) {
         this.context = context;
         this.insertApi = insertApi;
-        OkHttpClient.Builder builder = new OkHttpClient.Builder()
-                .readTimeout(20, TimeUnit.SECONDS);
-        retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(builder.build())
-                .build();
     }
 
     public void callResponse(final Emitter emitter) {
-        RestApi restApi = retrofit.create(RestApi.class);
+        RestApi restApi = RetrofitService.getInterface();
         Call<ResponseBody> call = insertApi.addData(restApi);
         call.enqueue(new Callback<>() {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                    Log.i(TAG, response.message());
+                Log.i(TAG, response.message());
                 emitter.onComplete();
             }
-
             @Override
             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
                 String stackTrace = Arrays.toString(t.getStackTrace());
                 Log.e(TAG, stackTrace);
-                emitter.onComplete();
+                emitter.onError(new Throwable(context.getString(R.string.error_of_connection)));
             }
         });
     }

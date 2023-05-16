@@ -3,7 +3,6 @@ package com.lipakov.smartlink.adapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.Filter;
@@ -23,11 +22,10 @@ import java.util.List;
 public class SmartLinkAdapter extends RecyclerView.Adapter<SmartLinkAdapter.SmartLinkViewHolder> implements Filterable {
     private static final String TAG = SmartLinkAdapter.class.getSimpleName();
 
-    private SmartLinkBinding smartLinkBinding;
     private List<SmartLink> smartLinkList = new ArrayList<>();
     private List<SmartLink> filterSmartLinkList = new ArrayList<>();
 
-    private Context context;
+    private final Context context;
 
     public SmartLinkAdapter(Context context) {
         this.context = context;
@@ -36,7 +34,7 @@ public class SmartLinkAdapter extends RecyclerView.Adapter<SmartLinkAdapter.Smar
     @NonNull
     @Override
     public SmartLinkViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        smartLinkBinding = SmartLinkBinding.inflate(LayoutInflater.from(context), parent,false);
+        SmartLinkBinding smartLinkBinding = SmartLinkBinding.inflate(LayoutInflater.from(context), parent, false);
         return new SmartLinkViewHolder(smartLinkBinding);
     }
 
@@ -96,16 +94,12 @@ public class SmartLinkAdapter extends RecyclerView.Adapter<SmartLinkAdapter.Smar
 
     @SuppressLint("NotifyDataSetChanged")
     public void updateSmartLinkList(final List<SmartLink> smartLinkList) {
-        this.smartLinkList.clear();
-        this.filterSmartLinkList.clear();
         this.smartLinkList = smartLinkList;
         this.filterSmartLinkList = smartLinkList;
-        Log.i(TAG, "Update smart link list");
-        notifyDataSetChanged();
     }
 
     static class SmartLinkViewHolder extends RecyclerView.ViewHolder {
-        private SmartLinkBinding smartLinkBinding;
+        private final SmartLinkBinding smartLinkBinding;
         public SmartLinkViewHolder(@NonNull SmartLinkBinding smartLinkBinding) {
             super(smartLinkBinding.getRoot());
             this.smartLinkBinding = smartLinkBinding;

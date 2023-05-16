@@ -16,6 +16,12 @@ public class Price implements FinderOfValue {
         return "";
     }
 
+    /**
+     * <p>Вохварщает цену
+     * (Берет значение класса элемента html и проверяет на "price")<p/>
+     * @param element Элемент тега
+     * @return текст classa с price, если находит, иначе "", если не находит
+     * */
     private String findPrice(Element element) {
         String className = element.className();
         if (className.contains("price") || className.contains("Price")) {
@@ -25,6 +31,12 @@ public class Price implements FinderOfValue {
         return "";
     }
 
+    /**
+     * <p>Проверяет на число и на валюту
+     * (валюта должна быть одна а чисел может быть несколько)<p/>
+     * @param text значение внутри html тега
+     * @return текст classa с price, если находит, иначе "", если не находит
+     * */
     private String findPrice(String text) {
         String[] tokens = text.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
         int countWords = 0;

@@ -8,10 +8,7 @@ public class Photo implements FinderOfValue {
     @Override
     public String findElement(Document document) {
         Elements metaOgImage = document.select("meta[property=og:image]");
-        if (metaOgImage != null) {
-            return metaOgImage.attr("content");
-        }
-        return "";
+        return metaOgImage.attr("content");
     }
 
 }

@@ -27,7 +27,10 @@
     <string name="attachment_summary_on">Automatically download attachments for incoming emails
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
-    <string name="please_input_url">Please input url</string>
+    <string name="please_input_url">PlEASE ADD URL</string>
     <string name="cancel">Cancel</string>
     <string name="confirm">Confirm</string>
+    <string name="error_of_connection">Ошибка соединения</string>
+    <string name="success_url_added">Ссылка успешно добавлена</string>
+    <string name="unknown_url">Неизвестный url</string>
 </resources>

@@ -21,8 +21,8 @@ public interface RestApi {
     @POST("/api/addUser")
     Call<ResponseBody> addUserSl(@Body UserSl userSl);
 
-    @GET("/api/{userId}")
-    Call<List<SmartLink>> getSmartLinkList(@Path("userId") Long userId);
+    @GET("/api/{email}")
+    Call<List<SmartLink>> getSmartLinkListByEmail(@Path("email") String email);
 
     @PUT("/api/{userId}/{smartLinkId}")
     Call<List<SmartLink>> updateSmartLink(@Body SmartLink smartLink,

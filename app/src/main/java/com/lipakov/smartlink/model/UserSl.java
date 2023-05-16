@@ -4,20 +4,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class UserSl {
-    private long id;
     private String login;
     private String email;
     /*@TODO smartLinks добавляет не уникальные модели*/
     private List<SmartLink> smartLinks = new LinkedList<>();
-
-    public UserSl() { }
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
 
     public String getLogin() {
         return login;

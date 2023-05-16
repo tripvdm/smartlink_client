@@ -1,7 +1,9 @@
 package com.lipakov.smartlink.service;
 
+import android.content.Context;
 import android.util.Log;
 
+import com.lipakov.smartlink.R;
 import com.lipakov.smartlink.model.SmartLink;
 
 import org.jsoup.Connection;
@@ -10,19 +12,21 @@ import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 
-public class SmartLinkService {
-    private static final String TAG = SmartLinkService.class.getSimpleName();
+public class SmartLinkFinderService {
+    private static final String TAG = SmartLinkFinderService.class.getSimpleName();
 
     private final FinderOfValue photoFinder;
     private final FinderOfValue titleFinder;
     private final FinderOfValue priceFinder;
     private final FinderOfValue phoneNumberFinder;
-    
-    public SmartLinkService() {
+
+    private Context context;
+    public SmartLinkFinderService(Context context) {
         photoFinder = new Photo();
         titleFinder = new Title();
         priceFinder = new Price();
         phoneNumberFinder = new PhoneNumber();
+        this.context = context;
     }
 
     public SmartLink findSmartLink(String urlOfLink) {
@@ -42,6 +46,7 @@ public class SmartLinkService {
             smartLink.setUrl(url);
         } catch (IOException e) {
             Log.e(TAG, e.getLocalizedMessage());
+            smartLink.setMessage(context.getString(R.string.error_of_connection));
         }
         return smartLink;
     }

@@ -16,6 +16,12 @@ public class PhoneNumber implements FinderOfValue {
         return "";
     }
 
+    /**
+     * <p>Возварщает телефон
+     * (Берет значение класса элемента html и проверяет на "price")<p/>
+     * @param element Элемент тега
+     * @return текст classa с phone, если находит, иначе "", если не находит
+     * */
     private String findPhoneNumber(Element element) {
         String className = element.className();
         if (className.contains("phone") || className.contains("Phone")) {
@@ -27,6 +33,12 @@ public class PhoneNumber implements FinderOfValue {
         return "";
     }
 
+    /**
+     * <p>Проверяет на телефон
+     * (валюта должна быть одна а чисел может быть несколько)<p/>
+     * @param tokens значение внутри html тега
+     * @return текст classa с phone, если находит, иначе "", если не находит
+     * */
     private String findPhoneNumber(String[] tokens) {
         for (String token : tokens) {
             if (isPhoneNumber(token)) {

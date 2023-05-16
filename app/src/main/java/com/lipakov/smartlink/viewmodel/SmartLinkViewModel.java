@@ -1,31 +1,33 @@
 package com.lipakov.smartlink.viewmodel;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.google.gson.Gson;
 import com.lipakov.smartlink.model.SmartLink;
-import com.lipakov.smartlink.service.api.RestApi;
+import com.lipakov.smartlink.model.UserSl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class SmartLinkViewModel extends ViewModel {
     private static final String TAG = SmartLinkViewModel.class.getSimpleName();
-
-    private RestApi restApi;
-    private final MutableLiveData<List<SmartLink>> smartLinkLiveData;
-    private final List<SmartLink> smartLinkList = new ArrayList<>();
-
+    private final SmartLinkRepository repository;
     public SmartLinkViewModel() {
-        smartLinkLiveData = new MutableLiveData<>();
+        repository = new SmartLinkRepository();
+    }
+    public MutableLiveData<List<SmartLink>> getSmartLinkMutableLiveData(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("LOGIN_PREF", Context.MODE_PRIVATE);
+        Gson gson = new Gson();
+        String jsonUserSl = sharedPreferences.getString("usersl", "");
+        UserSl userSl = gson.fromJson(jsonUserSl, UserSl.class);
+        return loadMoviesData(userSl);
     }
 
-    public MutableLiveData<List<SmartLink>> getSmartLinkLiveData() {
-        return smartLinkLiveData;
-    }
-
-    public void init() {
-        smartLinkLiveData.setValue(smartLinkList);
+    private MutableLiveData<List<SmartLink>> loadMoviesData(UserSl userSl) {
+        return repository.getSmartLinkMutableLiveData(userSl);
     }
 
 }

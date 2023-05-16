@@ -40,6 +40,7 @@ import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.firebase.FirebaseApp;
 import com.google.gson.Gson;
 import com.lipakov.smartlink.databinding.ActivityMainBinding;
+import com.lipakov.smartlink.fragment.SmartLinkFragment;
 import com.lipakov.smartlink.model.UserSl;
 import com.lipakov.smartlink.presenter.UserPresenter;
 import com.lipakov.smartlink.utils.UtilsUI;
@@ -50,28 +51,25 @@ import org.apache.commons.validator.routines.UrlValidator;
 import io.reactivex.disposables.Disposable;
 
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, UserPresenter.DisplayView {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, UserPresenter.DisplayView, AddingOfSmartLinkListener.AddingOfSmartLink {
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int FIRST_SELECTED_ELEMENT_OF_NAVIGATION_VIEW = 0;
     private static final String SEARCH_KEY = "search";
     private ActivityMainBinding activityMainBinding;
-
     private ActionBarDrawerToggle drawerToggle;
-
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
-
     private LinearProgressIndicator linearProgressIndicator;
     private Intent signInIntent;
     private GoogleSignInClient googleSignInClient;
     private UserPresenter userPresenter;
     private Disposable userDisposable;
-
     private SearchView searchView;
     private Bundle savedInstanceState;
-
+    private EditText urlInput;
+    private AlertDialog alertDialog;
+    private ProgressDialog progressDialog;
     private final ActivityResultLauncher<Intent> signInActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), this::onActivityResult);
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Gson gson = new Gson();
             UserSl userSl = gson.fromJson(jsonUserSl, UserSl.class);
             displayMainActivity(userSl.getLogin());
+            startSmartLinkFragment();
         }
     }
 
@@ -121,10 +120,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         try {
             linearProgressIndicator.setIndeterminate(true);
             userDisposable = addUser(task);
+            startSmartLinkFragment();
         } catch (ApiException e) {
             Log.e(TAG, e.getLocalizedMessage());
             signInActivityResultLauncher.launch(signInIntent);
         }
+    }
+
+    @Override
+    public void startSmartLinkFragment() {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .addToBackStack(null)
+                .replace(R.id.linkListFrame, new SmartLinkFragment())
+                .commit();
     }
 
     private Disposable addUser(Task<GoogleSignInAccount> task) throws ApiException {
@@ -141,6 +150,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawerLayout = activityMainBinding.drawerLayout;
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, null, R.string.open, R.string.close);
         drawerLayout.addDrawerListener(drawerToggle);
+        addUrl();
     }
 
     private void setActionBar(String displayName) {
@@ -238,22 +248,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         final int itemId = item.getItemId();
         if (itemId == R.id.addURL) {
-            EditText urlInput = getUrlInput();
-            AlertDialog alertDialog = getAlertDialog(urlInput);
-            ProgressDialog progressDialog = UtilsUI.createProgressDialog(this);
-            Button positiveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            positiveButton.setEnabled(false);
-            urlInput.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-                @Override
-                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                    MainActivity.this.onTextChanged(charSequence, positiveButton, urlInput);
-                }
-                @Override
-                public void afterTextChanged(Editable editable) {}
-            });
-            positiveButton.setOnClickListener(view -> handlerOfPositiveButton(urlInput, alertDialog, progressDialog));
+            addUrl();
         } else if (itemId == R.id.settings) {
             Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
             startActivity(settingsIntent);
@@ -263,6 +258,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void addUrl() {
+        urlInput = getUrlInput();
+        alertDialog = getAlertDialog(urlInput);
+        progressDialog = UtilsUI.createProgressDialog(this);
+        Button positiveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        positiveButton.setEnabled(false);
+        urlInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                MainActivity.this.onTextChanged(charSequence, positiveButton, urlInput);
+            }
+            @Override
+            public void afterTextChanged(Editable editable) {}
+        });
+        positiveButton.setOnClickListener(view -> handlerOfPositiveButton());
+    }
+
+    @Override
+    public EditText getEditText() {
+        return urlInput;
+    }
+
+    @Override
+    public AlertDialog getAlertDialog() {
+        return alertDialog;
+    }
+
+    @Override
+    public ProgressDialog getProgressDialog() {
+        return progressDialog;
     }
 
     @NonNull
@@ -297,10 +326,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         urlInput.setBackgroundTintList(colorStateList);
     }
 
-    private void handlerOfPositiveButton(EditText urlInput, AlertDialog alertDialog, ProgressDialog progressDialog) {
-        alertDialog.dismiss();
-        progressDialog.show();
-        AddingOfSmartLinkListener addingOfSmartLinkListener = new AddingOfSmartLinkListener(getApplicationContext(), urlInput, progressDialog, alertDialog);
+    private void handlerOfPositiveButton() {
+        AddingOfSmartLinkListener addingOfSmartLinkListener = new AddingOfSmartLinkListener(getApplicationContext(), this);
         addingOfSmartLinkListener.onClick();
     }
 
