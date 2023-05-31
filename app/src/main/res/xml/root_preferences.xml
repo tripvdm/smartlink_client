@@ -1,25 +1,25 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
-    <com.lipakov.smartlink.view.CustomPreferenceCategory app:title="О приложении">
+    <PreferenceCategory app:title="О приложении">
         <PreferenceScreen
             android:key="about"
             android:summary="Данное приложение..."/>
-    </com.lipakov.smartlink.view.CustomPreferenceCategory>
-    <com.lipakov.smartlink.view.CustomPreferenceCategory app:title="Настройки">
-        <SwitchPreferenceCompat
+    </PreferenceCategory>
+    <PreferenceCategory app:title="Настройки">
+        <SwitchPreference
             app:key="background"
             app:title="Темный фон" />
-        <SwitchPreferenceCompat
+        <SwitchPreference
             app:key="delete_list"
             app:title="Удалить список" />
-    </com.lipakov.smartlink.view.CustomPreferenceCategory>
-    <com.lipakov.smartlink.view.CustomPreferenceCategory
+    </PreferenceCategory>
+    <PreferenceCategory
         android:title="Контакты">
         <PreferenceScreen
             android:key="support"
-            android:summary="По всем вопросам обращаться vadimlipakov@gmail.com"/>
-    </com.lipakov.smartlink.view.CustomPreferenceCategory>
-    <EditTextPreference
+            android:summary="По всем вопросам обращаться vadimlipakov@gmail.com" />
+    </PreferenceCategory>
+    <PreferenceScreen
         app:key="copyright"
         app:defaultValue="Copyright \u00a9 2023, Вадим Липаков"
         app:useSimpleSummaryProvider="true" />

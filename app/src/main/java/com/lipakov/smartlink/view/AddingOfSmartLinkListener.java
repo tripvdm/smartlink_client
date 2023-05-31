@@ -42,7 +42,7 @@ public class AddingOfSmartLinkListener implements SmartLinkPresenter.SmartLinkVi
         toast.show();
         alertDialog.show();
         progressDialog.dismiss();
-        addingOfSmartLink.startSmartLinkFragment();
+        addingOfSmartLink.startObserverOfSmartLink();
     }
 
     private static void setTextColor(String notify, TextView toastMessage) {
@@ -59,6 +59,6 @@ public class AddingOfSmartLinkListener implements SmartLinkPresenter.SmartLinkVi
         EditText getEditText();
         AlertDialog getAlertDialog();
         ProgressDialog getProgressDialog();
-        void startSmartLinkFragment();
+        void startObserverOfSmartLink();
     }
 }

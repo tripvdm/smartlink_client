@@ -3,31 +3,29 @@ package com.lipakov.smartlink;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.facebook.drawee.backends.pipeline.Fresco;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -51,10 +49,9 @@ import org.apache.commons.validator.routines.UrlValidator;
 import io.reactivex.disposables.Disposable;
 
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, UserPresenter.DisplayView, AddingOfSmartLinkListener.AddingOfSmartLink {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, UserPresenter.DisplayView, AddingOfSmartLinkListener.AddingOfSmartLink, SmartLinkFragment.HandlerUrl {
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int FIRST_SELECTED_ELEMENT_OF_NAVIGATION_VIEW = 0;
-    private static final String SEARCH_KEY = "search";
     private ActivityMainBinding activityMainBinding;
     private ActionBarDrawerToggle drawerToggle;
     private DrawerLayout drawerLayout;
@@ -64,8 +61,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private GoogleSignInClient googleSignInClient;
     private UserPresenter userPresenter;
     private Disposable userDisposable;
-    private SearchView searchView;
-    private Bundle savedInstanceState;
     private EditText urlInput;
     private AlertDialog alertDialog;
     private ProgressDialog progressDialog;
@@ -73,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.savedInstanceState = savedInstanceState;
+        Fresco.initialize(this);
         activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(activityMainBinding.getRoot());
         initViews();
@@ -89,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Gson gson = new Gson();
             UserSl userSl = gson.fromJson(jsonUserSl, UserSl.class);
             displayMainActivity(userSl.getLogin());
-            startSmartLinkFragment();
+            startObserverOfSmartLink();
         }
     }
 
@@ -120,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         try {
             linearProgressIndicator.setIndeterminate(true);
             userDisposable = addUser(task);
-            startSmartLinkFragment();
+            startObserverOfSmartLink();
         } catch (ApiException e) {
             Log.e(TAG, e.getLocalizedMessage());
             signInActivityResultLauncher.launch(signInIntent);
@@ -128,12 +123,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void startSmartLinkFragment() {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .addToBackStack(null)
-                .replace(R.id.linkListFrame, new SmartLinkFragment())
-                .commit();
+    public void startObserverOfSmartLink() {
+        SmartLinkFragment smartLinkFragment = (SmartLinkFragment) getSupportFragmentManager().findFragmentById(R.id.smartLinkListFrame);
+        if (smartLinkFragment == null) {
+            smartLinkFragment = new SmartLinkFragment();
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .addToBackStack(null)
+                    .replace(R.id.smartLinkListFrame, smartLinkFragment)
+                    .commit();
+        } else {
+            smartLinkFragment.smartLinkViewModelObserve();
+        }
+        smartLinkFragment.setHandlerUrl(this);
     }
 
     private Disposable addUser(Task<GoogleSignInAccount> task) throws ApiException {
@@ -146,11 +148,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         linearProgressIndicator.setIndeterminate(false);
         setActionBar(displayLogin);
         activityMainBinding.navigationView.setNavigationItemSelectedListener(this);
-        initSelectedElementOfNavigationView();
         drawerLayout = activityMainBinding.drawerLayout;
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, null, R.string.open, R.string.close);
         drawerLayout.addDrawerListener(drawerToggle);
-        addUrl();
     }
 
     private void setActionBar(String displayName) {
@@ -169,43 +169,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (userDisposable != null) {
             userDisposable.dispose();
         }
-        if (searchView != null) {
-            outState.putString(SEARCH_KEY, String.valueOf(searchView.getQuery()));
-        }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        Log.d(TAG, "Start Create Options Menu");
-        MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.toolbar_menu, menu);
-        MenuItem menuItem = menu.findItem(R.id.searchOfLink);
-        searchView = (SearchView) menuItem.getActionView();
-        searchView.setMaxWidth(Integer.MAX_VALUE);
-        if (savedInstanceState != null) {
-            setParamsForSearchView(menuItem);
-        }
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                return false;
-            }
-        });
-        return true;
-    }
-
-    private void setParamsForSearchView(MenuItem menuItem) {
-        String searchViewText = String.valueOf(savedInstanceState.get(SEARCH_KEY));
-        menuItem.expandActionView();
-        searchView.setQuery(searchViewText, true);
-        searchView.clearFocus();
-        searchView.setIconified(false);
     }
 
     @Override
@@ -229,27 +192,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void onBackPressed() {
-        if (searchView != null && !searchView.isIconified()) {
-            searchView.setIconified(true);
-        }
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
-        }
-    }
-
-    private void initSelectedElementOfNavigationView() {
-        Menu menu = navigationView.getMenu();
-        MenuItem menuItem = menu.getItem(FIRST_SELECTED_ELEMENT_OF_NAVIGATION_VIEW);
-        menuItem.setChecked(true);
-    }
-
-    @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         final int itemId = item.getItemId();
-        if (itemId == R.id.addURL) {
-            addUrl();
-        } else if (itemId == R.id.settings) {
+        if (itemId == R.id.settings) {
             Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
             startActivity(settingsIntent);
         } else if (itemId == R.id.signOut) {
@@ -260,7 +205,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    private void addUrl() {
+    @Override
+    public void addUrl() {
         urlInput = getUrlInput();
         alertDialog = getAlertDialog(urlInput);
         progressDialog = UtilsUI.createProgressDialog(this);

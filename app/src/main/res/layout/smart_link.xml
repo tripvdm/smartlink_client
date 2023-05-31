@@ -1,33 +1,65 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.cardview.widget.CardView xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/smartLink"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
-    <ImageView
-        android:id="@+id/photoOfSmartLink"
-        android:layout_width="wrap_content"
-        android:padding="3dp"
+    card_view:cardCornerRadius="10dp"
+    card_view:cardElevation="5dp"
+    card_view:cardUseCompatPadding="true"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto">
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_launcher_background"
-        tools:ignore="ContentDescription" />
-    <TextView
-        android:id="@+id/nameOfSmartLink"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:text="@string/name_of_smart_link" />
-    <TextView
-        android:id="@+id/priceOfSmartLink"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="15sp"
-        android:text="@string/price_of_smart_link" />
-    <TextView
-        android:id="@+id/contactNumberOfSmartLink"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="15sp"
-        android:text="@string/contact_number_of_smart_link" />
-</LinearLayout>
+        android:padding="15dp"
+        android:orientation="vertical">
+        <ImageView
+            android:id="@+id/photoOfSmartLink"
+            android:tag="image_tag"
+            android:layout_width="160dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            tools:ignore="Suspicious0dp" />
+        <ProgressBar
+            android:id="@+id/loadPhoto"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <LinearLayout
+            android:layout_height="match_parent"
+            android:layout_marginTop="5dp"
+            android:layout_weight="2"
+            android:orientation="vertical"
+            android:layout_width="match_parent">
+            <TextView
+                android:id="@+id/nameOfSmartLink"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:layout_marginTop="10dp"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                tools:ignore="SmallSp" />
+            <TextView
+                android:id="@+id/priceOfSmartLink"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10dp"
+                android:textSize="15sp"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                tools:ignore="SmallSp" />
+            <TextView
+                android:id="@+id/contactNumberOfSmartLink"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10dp"
+                android:textSize="15sp"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                tools:ignore="SmallSp" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
