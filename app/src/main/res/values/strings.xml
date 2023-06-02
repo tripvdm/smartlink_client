@@ -34,4 +34,6 @@
     <string name="success_url_added">Ссылка успешно добавлена</string>
     <string name="unknown_url">Неизвестный url</string>
     <string name="add_url">add url</string>
+    <string name="not_connection_text">Нет соединения, пожалуйста проверьте подключение к сети и потяните вниз для обновления.</string>
+    <string name="empty_list_text">Список пуст, пожалуйста добавьте ссылку, нажав на крестик внизу.</string>
 </resources>

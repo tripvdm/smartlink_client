@@ -1,8 +1,13 @@
 package com.lipakov.smartlink.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+
 import kotlin.jvm.Transient;
 
-public class SmartLink {
+public class SmartLink implements Parcelable {
     private String photo;
     private String title;
     private String url;
@@ -12,6 +17,27 @@ public class SmartLink {
     @Transient
     private String message;
     public SmartLink() { }
+
+    protected SmartLink(Parcel in) {
+        photo = in.readString();
+        title = in.readString();
+        url = in.readString();
+        price = in.readString();
+        phoneNumber = in.readString();
+        message = in.readString();
+    }
+
+    public static final Creator<SmartLink> CREATOR = new Creator<SmartLink>() {
+        @Override
+        public SmartLink createFromParcel(Parcel in) {
+            return new SmartLink(in);
+        }
+
+        @Override
+        public SmartLink[] newArray(int size) {
+            return new SmartLink[size];
+        }
+    };
 
     public String getPhoto() {
         return photo;
@@ -69,4 +95,17 @@ public class SmartLink {
         this.message = message;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        dest.writeString(photo);
+        dest.writeString(title);
+        dest.writeString(url);
+        dest.writeString(price);
+        dest.writeString(phoneNumber);
+    }
 }

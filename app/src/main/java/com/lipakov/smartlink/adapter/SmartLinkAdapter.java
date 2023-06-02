@@ -5,7 +5,6 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.os.Bundle;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -16,14 +15,14 @@ import android.text.style.URLSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentManager;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -31,10 +30,9 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
-import com.lipakov.smartlink.MainActivity;
+import com.github.chrisbanes.photoview.PhotoView;
 import com.lipakov.smartlink.R;
 import com.lipakov.smartlink.databinding.SmartLinkBinding;
-import com.lipakov.smartlink.fragment.GalleryFragment;
 import com.lipakov.smartlink.model.SmartLink;
 
 import java.util.ArrayList;
@@ -47,9 +45,11 @@ public class SmartLinkAdapter extends RecyclerView.Adapter<SmartLinkAdapter.Smar
     private List<SmartLink> smartLinkList;
 
     private final Context context;
+    private LayoutInflater inflater;
 
-    public SmartLinkAdapter(Context context) {
+    public SmartLinkAdapter(Context context, LayoutInflater inflater) {
         this.context = context;
+        this.inflater = inflater;
         smartLinkList = new ArrayList<>();
     }
 
@@ -125,14 +125,13 @@ public class SmartLinkAdapter extends RecyclerView.Adapter<SmartLinkAdapter.Smar
             super(smartLinkBinding.getRoot());
             this.smartLinkBinding = smartLinkBinding;
             this.smartLinkBinding.photoOfSmartLink.setOnClickListener(v -> {
-                final DialogFragment galleryFragment = new GalleryFragment();
-                Bundle bundleGallery = new Bundle();
-                SmartLink smartLink = smartLinkList.get(getLayoutPosition());
-                final String pathOfPhoto = smartLink.getPhoto();
-                bundleGallery.putString("photoPath", pathOfPhoto);
-                galleryFragment.setArguments(bundleGallery);
-                final FragmentManager fragmentManager = ((MainActivity) itemView.getContext()).getSupportFragmentManager();
-                galleryFragment.show(fragmentManager, "fragment_gallery");
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                View dialogLayout = inflater.inflate(R.layout.photo_view, null);
+                @SuppressLint({"MissingInflatedId", "LocalSuppress"})
+                PhotoView bigPhoto = dialogLayout.findViewById(R.id.bigPhotoSmartLink);
+                bigPhoto.setImageDrawable(smartLinkBinding.photoOfSmartLink.getDrawable());
+                builder.setView(dialogLayout);
+                builder.show();
             });
         }
     }

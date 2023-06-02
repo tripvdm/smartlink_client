@@ -7,11 +7,9 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
@@ -25,7 +23,6 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import com.facebook.drawee.backends.pipeline.Fresco;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -49,9 +46,8 @@ import org.apache.commons.validator.routines.UrlValidator;
 import io.reactivex.disposables.Disposable;
 
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, UserPresenter.DisplayView, AddingOfSmartLinkListener.AddingOfSmartLink, SmartLinkFragment.HandlerUrl {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, UserPresenter.DisplayView, AddingOfSmartLinkListener.AddingOfSmartLink {
     private static final String TAG = MainActivity.class.getSimpleName();
-    private static final int FIRST_SELECTED_ELEMENT_OF_NAVIGATION_VIEW = 0;
     private ActivityMainBinding activityMainBinding;
     private ActionBarDrawerToggle drawerToggle;
     private DrawerLayout drawerLayout;
@@ -68,7 +64,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Fresco.initialize(this);
         activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(activityMainBinding.getRoot());
         initViews();
@@ -125,17 +120,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void startObserverOfSmartLink() {
         SmartLinkFragment smartLinkFragment = (SmartLinkFragment) getSupportFragmentManager().findFragmentById(R.id.smartLinkListFrame);
-        if (smartLinkFragment == null) {
-            smartLinkFragment = new SmartLinkFragment();
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .addToBackStack(null)
-                    .replace(R.id.smartLinkListFrame, smartLinkFragment)
-                    .commit();
-        } else {
-            smartLinkFragment.smartLinkViewModelObserve();
-        }
-        smartLinkFragment.setHandlerUrl(this);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .addToBackStack(null)
+                .replace(R.id.smartLinkListFrame, new SmartLinkFragment())
+                .commit();
     }
 
     private Disposable addUser(Task<GoogleSignInAccount> task) throws ApiException {
@@ -205,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    @Override
+    /*TODO*/
     public void addUrl() {
         urlInput = getUrlInput();
         alertDialog = getAlertDialog(urlInput);
