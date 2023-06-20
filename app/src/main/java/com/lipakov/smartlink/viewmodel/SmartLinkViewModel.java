@@ -16,23 +16,28 @@ import java.util.List;
 public class SmartLinkViewModel extends ViewModel {
     private static final String TAG = SmartLinkViewModel.class.getSimpleName();
     private static final String SMART_DATA_KEY = "smartLinkData";
-    private static final String VISIBILITY_OF_WARNING = "visibilityOfWarning";
     private final SmartLinkRepository repository;
     private final SavedStateHandle savedStateHandle;
     private MutableLiveData<List<SmartLink>> smartLinkMutableLiveData;
-    private final Integer visibilityOfWarning;
+    private UserSl userSl;
+
     public SmartLinkViewModel(SavedStateHandle savedStateHandle) {
         this.savedStateHandle = savedStateHandle;
         repository = new SmartLinkRepository();
         smartLinkMutableLiveData = savedStateHandle.get(SMART_DATA_KEY);
-        visibilityOfWarning = savedStateHandle.get(VISIBILITY_OF_WARNING);
     }
 
-    public MutableLiveData<List<SmartLink>> getSmartLinkMutableLiveData(Context context, boolean refreshed) {
-        if (smartLinkMutableLiveData == null || refreshed) {
-            UserSl userSl = getUserSl(context);
+    public MutableLiveData<List<SmartLink>> getSmartLinkMutableLiveData(Context context) {
+        if (smartLinkMutableLiveData == null) {
+            userSl = getUserSl(context);
             smartLinkMutableLiveData = loadMoviesData(userSl);
         }
+        return smartLinkMutableLiveData;
+    }
+
+    public MutableLiveData<List<SmartLink>> getRefreshingSmartLinkMutableLiveData(Context context) {
+        userSl = getUserSl(context);
+        smartLinkMutableLiveData = loadMoviesData(userSl);
         return smartLinkMutableLiveData;
     }
     private UserSl getUserSl(Context context) {
@@ -44,8 +49,7 @@ public class SmartLinkViewModel extends ViewModel {
     private MutableLiveData<List<SmartLink>> loadMoviesData(UserSl userSl) {
         return repository.getSmartLinkMutableLiveData(userSl);
     }
-    public void saveState(int visibility) {
+    public void saveState() {
         savedStateHandle.set(SMART_DATA_KEY, smartLinkMutableLiveData.getValue());
-        savedStateHandle.set(VISIBILITY_OF_WARNING, visibility);
     }
 }

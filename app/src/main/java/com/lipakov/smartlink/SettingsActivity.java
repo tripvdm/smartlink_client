@@ -1,8 +1,6 @@
 package com.lipakov.smartlink;
 
-import android.graphics.Color;
 import android.os.Bundle;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
@@ -12,7 +10,6 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.TwoStatePreference;
 
 import com.lipakov.smartlink.presenter.SmartLinkPresenter;
-import com.lipakov.smartlink.utils.UtilsUI;
 
 import java.util.Objects;
 

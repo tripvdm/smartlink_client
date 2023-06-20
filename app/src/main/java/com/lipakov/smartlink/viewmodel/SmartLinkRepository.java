@@ -38,7 +38,7 @@ public class SmartLinkRepository {
 
             @Override
             public void onFailure(@NonNull Call<List<SmartLink>> call, Throwable t) {
-                smartLinkMutableLiveData.postValue(null);
+                smartLinkMutableLiveData.setValue(null);
             }
         });
         return smartLinkMutableLiveData;

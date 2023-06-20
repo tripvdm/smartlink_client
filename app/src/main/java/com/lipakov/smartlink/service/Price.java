@@ -32,6 +32,7 @@ public class Price implements FinderOfValue {
     }
 
     /**
+     * TODO Добавить класс с поиском при не обнаружении цены
      * <p>Проверяет на число и на валюту
      * (валюта должна быть одна а чисел может быть несколько)<p/>
      * @param text значение внутри html тега
@@ -58,4 +59,8 @@ public class Price implements FinderOfValue {
         return pattern.matcher(word).matches();
     }
 
+    /*TODO Nlp searcher*/
+    class NlpSearcher {
+
+    }
 }

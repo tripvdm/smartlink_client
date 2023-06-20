@@ -8,7 +8,6 @@ import com.google.gson.Gson;
 import com.lipakov.smartlink.R;
 import com.lipakov.smartlink.model.SmartLink;
 import com.lipakov.smartlink.model.UserSl;
-import com.lipakov.smartlink.service.RetrofitService;
 import com.lipakov.smartlink.service.SmartLinkApiService;
 import com.lipakov.smartlink.service.SmartLinkFinderService;
 import com.lipakov.smartlink.service.api.Crud;
@@ -37,7 +36,6 @@ public class SmartLinkPresenter implements CrudApi {
         smartLinkApiService = new SmartLinkApiService(context, this);
         sharedPreferences = context.getSharedPreferences("LOGIN_PREF", Context.MODE_PRIVATE);
     }
-
     @SuppressLint("CheckResult")
     public void addSmartLink(String urlOfLink) {
         Observable.create((ObservableOnSubscribe<SmartLink>) emitter -> {
@@ -49,7 +47,6 @@ public class SmartLinkPresenter implements CrudApi {
                 .doOnComplete(() -> smartLinkView.showNotify(smartLink.getMessage()))
                 .subscribe(result -> {}, error -> smartLinkView.showNotify(context.getString(R.string.error_of_connection)));
     }
-
     @SuppressLint("CheckResult")
     public void deleteSmartLink(SmartLink smartLink) {
         this.smartLink = smartLink;
@@ -60,7 +57,6 @@ public class SmartLinkPresenter implements CrudApi {
                 .doOnComplete(() -> smartLinkView.showNotify(context.getString(R.string.delete_link)))
                 .subscribe(result -> {}, error -> smartLinkView.showNotify(context.getString(R.string.error_of_connection)));
     }
-
     @SuppressLint("CheckResult")
     public void deleteSmartLinkList() {
         Observable.create((ObservableOnSubscribe<SmartLink>) emitter -> smartLinkApiService.callResponse(emitter, Crud.DELETE_ALL))
@@ -69,7 +65,6 @@ public class SmartLinkPresenter implements CrudApi {
                 .doOnComplete(() -> smartLinkView.showNotify(context.getString(R.string.delete_all_links)))
                 .subscribe(result -> {}, error -> smartLinkView.showNotify(context.getString(R.string.error_of_connection)));
     }
-
     private void checkUrl(Emitter emitter) {
         String title = smartLink.getTitle();
         if (title == null) {
@@ -79,7 +74,6 @@ public class SmartLinkPresenter implements CrudApi {
             completeRequest(emitter);
         }
     }
-
     private void completeRequest(Emitter emitter) {
         UserSl userSl = getUserSlFromJson();
         smartLink.setUserSl(userSl);
@@ -91,7 +85,6 @@ public class SmartLinkPresenter implements CrudApi {
         String jsonUserSl = sharedPreferences.getString("usersl", "");
         return new Gson().fromJson(jsonUserSl, UserSl.class);
     }
-
     @Override
     public Call<ResponseBody> crudData(RestApi restApi, Crud crud) {
         if (crud.equals(Crud.CREATE)) {
@@ -103,7 +96,6 @@ public class SmartLinkPresenter implements CrudApi {
         }
         throw new IllegalArgumentException();
     }
-
     public interface SmartLinkView {
         void showNotify(String notify);
     }

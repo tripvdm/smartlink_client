@@ -33,7 +33,6 @@ import com.lipakov.smartlink.adapter.SmartLinkAdapter;
 import com.lipakov.smartlink.databinding.SmartLinkFragmentBinding;
 import com.lipakov.smartlink.model.SmartLink;
 import com.lipakov.smartlink.presenter.SmartLinkPresenter;
-import com.lipakov.smartlink.utils.UtilsUI;
 import com.lipakov.smartlink.viewmodel.SmartLinkViewModel;
 
 import org.apache.commons.validator.routines.UrlValidator;
@@ -55,8 +54,9 @@ public class SmartLinkFragment extends Fragment implements SmartLinkPresenter.Sm
     private ProgressDialog progressDialog;
     @SuppressLint("FragmentLiveDataObserve")
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        setRetainInstance(true);
         smartLinkViewModel = new ViewModelProvider(this).get(SmartLinkViewModel.class);
-        smartLinkViewModel.getSmartLinkMutableLiveData(requireContext(), false).observe(this, smartLinkListUpdateObserver);
+        smartLinkViewModel.getSmartLinkMutableLiveData(requireContext()).observe(this, smartLinkListUpdateObserver);
     }
 
     @SuppressLint({"NewApi", "NotifyDataSetChanged", "ResourceAsColor"})
@@ -118,7 +118,7 @@ public class SmartLinkFragment extends Fragment implements SmartLinkPresenter.Sm
 
     @SuppressLint("FragmentLiveDataObserve")
     private void listenSwipeContainer() {
-        swipeContainer.setOnRefreshListener(() -> smartLinkViewModel.getSmartLinkMutableLiveData(requireContext(), true).observe(this, smartLinkListUpdateObserver));
+        swipeContainer.setOnRefreshListener(() -> smartLinkViewModel.getRefreshingSmartLinkMutableLiveData(requireContext()).observe(this, smartLinkListUpdateObserver));
     }
 
     public void addUrl(LayoutInflater layoutInflater) {
@@ -189,11 +189,19 @@ public class SmartLinkFragment extends Fragment implements SmartLinkPresenter.Sm
     public void showNotify(String notify) {
         Toast toast = Toast.makeText(requireContext(), notify, Toast.LENGTH_SHORT);
         TextView toastMessage = toast.getView().findViewById(android.R.id.message);
-        UtilsUI.setTextColor(notify, toastMessage);
+        setTextMessage(notify, toastMessage);
         toast.show();
         alertDialog.show();
         progressDialog.dismiss();
         refreshSmartLinkFragment();
+    }
+
+    private void setTextMessage(String notify, TextView toastMessage) {
+        if (!notify.isBlank()) {
+            toastMessage.setText(notify);
+        } else {
+            toastMessage.setText(R.string.success_url_added);
+        }
     }
 
     private void refreshSmartLinkFragment() {
@@ -208,7 +216,7 @@ public class SmartLinkFragment extends Fragment implements SmartLinkPresenter.Sm
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         if (smartLinkViewModel != null) {
-            smartLinkViewModel.saveState(warningText.getVisibility());
+            smartLinkViewModel.saveState();
         }
     }
 }
