@@ -15,9 +15,9 @@ import android.text.style.URLSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,10 +30,11 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
-import com.github.chrisbanes.photoview.PhotoView;
 import com.lipakov.smartlink.R;
 import com.lipakov.smartlink.databinding.SmartLinkBinding;
 import com.lipakov.smartlink.model.SmartLink;
+import com.lipakov.smartlink.presenter.SmartLinkPresenter;
+import com.lipakov.smartlink.utils.UtilsUI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,11 +46,9 @@ public class SmartLinkAdapter extends RecyclerView.Adapter<SmartLinkAdapter.Smar
     private List<SmartLink> smartLinkList;
 
     private final Context context;
-    private LayoutInflater inflater;
 
-    public SmartLinkAdapter(Context context, LayoutInflater inflater) {
+    public SmartLinkAdapter(Context context) {
         this.context = context;
-        this.inflater = inflater;
         smartLinkList = new ArrayList<>();
     }
 
@@ -118,21 +117,31 @@ public class SmartLinkAdapter extends RecyclerView.Adapter<SmartLinkAdapter.Smar
         notifyDataSetChanged();
     }
 
-    class SmartLinkViewHolder extends RecyclerView.ViewHolder {
+    class SmartLinkViewHolder extends RecyclerView.ViewHolder implements SmartLinkPresenter.SmartLinkView {
         public SmartLinkBinding smartLinkBinding;
 
         public SmartLinkViewHolder(@NonNull SmartLinkBinding smartLinkBinding) {
             super(smartLinkBinding.getRoot());
             this.smartLinkBinding = smartLinkBinding;
-            this.smartLinkBinding.photoOfSmartLink.setOnClickListener(v -> {
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                View dialogLayout = inflater.inflate(R.layout.photo_view, null);
-                @SuppressLint({"MissingInflatedId", "LocalSuppress"})
-                PhotoView bigPhoto = dialogLayout.findViewById(R.id.bigPhotoSmartLink);
-                bigPhoto.setImageDrawable(smartLinkBinding.photoOfSmartLink.getDrawable());
-                builder.setView(dialogLayout);
-                builder.show();
+            smartLinkBinding.smartLink.setOnLongClickListener(v -> {
+                new AlertDialog.Builder(itemView.getContext())
+                        .setMessage(Html.fromHtml("<font color='#9E5B37'>Вы действительно хотите удалить ссылку?</font>"))
+                        .setNegativeButton(R.string.cancel, ((dialog, which) -> {}))
+                        .setPositiveButton(R.string.yes, (dialogInterface, i) -> {
+                            SmartLinkPresenter smartLinkPresenter = new SmartLinkPresenter(context, this);
+                            int adapterPosition = getAbsoluteAdapterPosition();
+                            smartLinkPresenter.deleteSmartLink(smartLinkList.get(adapterPosition));
+                        }).show();
+                return false;
             });
+        }
+
+        @Override
+        public void showNotify(String notify) {
+            Toast toast = Toast.makeText(context, notify, Toast.LENGTH_SHORT);
+            TextView toastMessage = toast.getView().findViewById(android.R.id.message);
+            toastMessage.setTextColor(Color.CYAN);
+            toast.show();
         }
     }
 

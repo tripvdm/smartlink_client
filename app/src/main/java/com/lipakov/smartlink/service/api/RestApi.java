@@ -9,6 +9,7 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.HTTP;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
@@ -17,6 +18,9 @@ import retrofit2.http.Path;
 public interface RestApi {
     @POST("/api/addLink")
     Call<ResponseBody> addSmartLink(@Body SmartLink smartLink);
+
+    @HTTP(method = "DELETE", path = "/api/{id}", hasBody = true)
+    Call<ResponseBody> deleteSmartLink(@Body SmartLink smartLink);
 
     @POST("/api/addUser")
     Call<ResponseBody> addUserSl(@Body UserSl userSl);
@@ -27,4 +31,7 @@ public interface RestApi {
     @PUT("/api/{userId}/{smartLinkId}")
     Call<List<SmartLink>> updateSmartLink(@Body SmartLink smartLink,
                                           @Path("userId") Long userId, @Path("smartLinkId") Long smartLinkId);
+
+    @HTTP(method = "DELETE", path = "/api/")
+    Call<ResponseBody> deleteAll();
 }

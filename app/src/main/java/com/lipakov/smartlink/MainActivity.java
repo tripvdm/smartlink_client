@@ -2,13 +2,9 @@ package com.lipakov.smartlink;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
-import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.activity.result.ActivityResult;
@@ -29,7 +25,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.firebase.FirebaseApp;
@@ -38,15 +33,11 @@ import com.lipakov.smartlink.databinding.ActivityMainBinding;
 import com.lipakov.smartlink.fragment.SmartLinkFragment;
 import com.lipakov.smartlink.model.UserSl;
 import com.lipakov.smartlink.presenter.UserPresenter;
-import com.lipakov.smartlink.utils.UtilsUI;
-import com.lipakov.smartlink.view.AddingOfSmartLinkListener;
-
-import org.apache.commons.validator.routines.UrlValidator;
 
 import io.reactivex.disposables.Disposable;
 
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, UserPresenter.DisplayView, AddingOfSmartLinkListener.AddingOfSmartLink {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, UserPresenter.DisplayView {
     private static final String TAG = MainActivity.class.getSimpleName();
     private ActivityMainBinding activityMainBinding;
     private ActionBarDrawerToggle drawerToggle;
@@ -117,9 +108,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    @Override
     public void startObserverOfSmartLink() {
-        SmartLinkFragment smartLinkFragment = (SmartLinkFragment) getSupportFragmentManager().findFragmentById(R.id.smartLinkListFrame);
         getSupportFragmentManager()
                 .beginTransaction()
                 .addToBackStack(null)
@@ -192,78 +181,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    /*TODO*/
-    public void addUrl() {
-        urlInput = getUrlInput();
-        alertDialog = getAlertDialog(urlInput);
-        progressDialog = UtilsUI.createProgressDialog(this);
-        Button positiveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-        positiveButton.setEnabled(false);
-        urlInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                MainActivity.this.onTextChanged(charSequence, positiveButton, urlInput);
-            }
-            @Override
-            public void afterTextChanged(Editable editable) {}
-        });
-        positiveButton.setOnClickListener(view -> handlerOfPositiveButton());
-    }
-
-    @Override
-    public EditText getEditText() {
-        return urlInput;
-    }
-
-    @Override
-    public AlertDialog getAlertDialog() {
-        return alertDialog;
-    }
-
-    @Override
-    public ProgressDialog getProgressDialog() {
-        return progressDialog;
-    }
-
-    @NonNull
-    private EditText getUrlInput() {
-        EditText urlInput = UtilsUI.createEditText(MainActivity.this);
-        urlInput.setHint("http://url...");
-        ColorStateList colorStateList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.black));
-        urlInput.setBackgroundTintList(colorStateList);
-        return urlInput;
-    }
-
-    private AlertDialog getAlertDialog(EditText urlInput) {
-        return new MaterialAlertDialogBuilder(this)
-                .setMessage(getString(R.string.please_input_url))
-                .setCancelable(false)
-                .setView(urlInput)
-                .setNegativeButton(getString(R.string.cancel), (dialogInterface, i) -> {})
-                .setPositiveButton(getString(R.string.confirm), (dialogInterface, i) -> {})
-                .show();
-    }
-
-    private void onTextChanged(CharSequence charSequence, Button positiveButton, EditText urlInput) {
-        ColorStateList colorStateList;
-        UrlValidator validator = new UrlValidator();
-        if (validator.isValid(String.valueOf(charSequence))) {
-            colorStateList = ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.green));
-            positiveButton.setEnabled(true);
-        } else {
-            colorStateList = ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.red));
-            positiveButton.setEnabled(false);
-        }
-        urlInput.setBackgroundTintList(colorStateList);
-    }
-
-    private void handlerOfPositiveButton() {
-        AddingOfSmartLinkListener addingOfSmartLinkListener = new AddingOfSmartLinkListener(getApplicationContext(), this);
-        addingOfSmartLinkListener.onClick();
     }
 
 }

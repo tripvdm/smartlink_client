@@ -5,9 +5,12 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
+import java.util.UUID;
+
 import kotlin.jvm.Transient;
 
 public class SmartLink implements Parcelable {
+    private UUID id;
     private String photo;
     private String title;
     private String url;
@@ -93,6 +96,14 @@ public class SmartLink implements Parcelable {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public UUID getUuid() {
+        return id;
+    }
+
+    public void setUuid(UUID id) {
+        this.id = id;
     }
 
     @Override

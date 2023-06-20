@@ -36,4 +36,9 @@
     <string name="add_url">add url</string>
     <string name="not_connection_text">Нет соединения, пожалуйста проверьте подключение к сети и потяните вниз для обновления.</string>
     <string name="empty_list_text">Список пуст, пожалуйста добавьте ссылку, нажав на крестик внизу.</string>
+    <string name="input_url">Введите url</string>
+    <string name="yes">Да</string>
+    <string name="delete_link">Ссылка удалена</string>
+    <string name="url">https://....</string>
+    <string name="delete_all_links">Все ссылки удалены</string>
 </resources>

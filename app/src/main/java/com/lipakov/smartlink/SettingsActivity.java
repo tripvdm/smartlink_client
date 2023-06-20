@@ -8,6 +8,8 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.TwoStatePreference;
 
+import com.lipakov.smartlink.presenter.SmartLinkPresenter;
+
 import java.util.Objects;
 
 public class SettingsActivity extends AppCompatActivity {
@@ -28,8 +30,9 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
-    public static class SettingsFragment extends PreferenceFragmentCompat {
+    public static class SettingsFragment extends PreferenceFragmentCompat implements SmartLinkPresenter.SmartLinkView {
         private TwoStatePreference changeBackground;
+        private TwoStatePreference deleteAllSmartLinkList;
         public SettingsFragment() {}
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -43,7 +46,17 @@ public class SettingsActivity extends AppCompatActivity {
                 }
                 return false;
             });
+            deleteAllSmartLinkList = findPreference("delete_list");
+            Objects.requireNonNull(deleteAllSmartLinkList).setOnPreferenceClickListener(preference -> {
+                SmartLinkPresenter smartLinkPresenter = new SmartLinkPresenter(requireContext(), this);
+                smartLinkPresenter.deleteSmartLinkList();
+                return false;
+            });
         }
 
+        @Override
+        public void showNotify(String notify) {
+            deleteAllSmartLinkList.setChecked(false);
+        }
     }
 }

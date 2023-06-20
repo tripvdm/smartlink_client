@@ -9,7 +9,8 @@ import com.google.gson.Gson;
 import com.lipakov.smartlink.model.SmartLink;
 import com.lipakov.smartlink.model.UserSl;
 import com.lipakov.smartlink.service.SmartLinkApiService;
-import com.lipakov.smartlink.service.api.InsertApi;
+import com.lipakov.smartlink.service.api.Crud;
+import com.lipakov.smartlink.service.api.CrudApi;
 import com.lipakov.smartlink.service.api.RestApi;
 
 import java.util.concurrent.ExecutorService;
@@ -23,7 +24,7 @@ import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 
-public class UserPresenter implements InsertApi {
+public class UserPresenter implements CrudApi {
     private static final String TAG = UserPresenter.class.getSimpleName();
     private final DisplayView displayView;
     private final SmartLinkApiService smartLinkApiService;
@@ -40,7 +41,7 @@ public class UserPresenter implements InsertApi {
         ExecutorService executor = Executors.newFixedThreadPool(threadCt);
         return Observable.create((ObservableOnSubscribe<SmartLink>) emitter -> {
                     putUserSl(account);
-                    smartLinkApiService.callResponse(emitter);
+                    smartLinkApiService.callResponse(emitter, Crud.CREATE);
         }).subscribeOn(Schedulers.from(executor))
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnComplete(() -> displayView.displayMainActivity(account.getGivenName()))
@@ -60,7 +61,7 @@ public class UserPresenter implements InsertApi {
     }
 
     @Override
-    public Call<ResponseBody> addData(RestApi restApi) {
+    public Call<ResponseBody> crudData(RestApi restApi, Crud crud) {
         return restApi.addUserSl(userSl);
     }
 

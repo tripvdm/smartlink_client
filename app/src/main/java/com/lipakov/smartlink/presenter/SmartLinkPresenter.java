@@ -8,9 +8,11 @@ import com.google.gson.Gson;
 import com.lipakov.smartlink.R;
 import com.lipakov.smartlink.model.SmartLink;
 import com.lipakov.smartlink.model.UserSl;
+import com.lipakov.smartlink.service.RetrofitService;
 import com.lipakov.smartlink.service.SmartLinkApiService;
 import com.lipakov.smartlink.service.SmartLinkFinderService;
-import com.lipakov.smartlink.service.api.InsertApi;
+import com.lipakov.smartlink.service.api.Crud;
+import com.lipakov.smartlink.service.api.CrudApi;
 import com.lipakov.smartlink.service.api.RestApi;
 
 import io.reactivex.Emitter;
@@ -21,9 +23,8 @@ import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 
-public class SmartLinkPresenter implements InsertApi {
+public class SmartLinkPresenter implements CrudApi {
     private static final String TAG = SmartLinkPresenter.class.getSimpleName();
-
     private final Context context;
     private final SmartLinkView smartLinkView;
     private SmartLink smartLink;
@@ -49,6 +50,27 @@ public class SmartLinkPresenter implements InsertApi {
                 .subscribe(result -> {}, error -> smartLinkView.showNotify(context.getString(R.string.error_of_connection)));
     }
 
+    @SuppressLint("CheckResult")
+    public void deleteSmartLink(SmartLink smartLink) {
+        this.smartLink = smartLink;
+        Observable.create((ObservableOnSubscribe<SmartLink>) emitter ->
+                        smartLinkApiService.callResponse(emitter, Crud.DELETE))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnComplete(() -> smartLinkView.showNotify(context.getString(R.string.delete_link)))
+                .subscribe(result -> {}, error -> smartLinkView.showNotify(context.getString(R.string.error_of_connection)));
+    }
+
+    @SuppressLint("CheckResult")
+    public void deleteSmartLinkList() {
+        Observable.create((ObservableOnSubscribe<SmartLink>) emitter ->
+                        smartLinkApiService.callResponse(emitter, Crud.DELETE_ALL))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnComplete(() -> smartLinkView.showNotify(context.getString(R.string.delete_all_links)))
+                .subscribe(result -> {}, error -> smartLinkView.showNotify(context.getString(R.string.error_of_connection)));
+    }
+
     private void checkUrl(Emitter emitter) {
         String title = smartLink.getTitle();
         if (title == null) {
@@ -63,7 +85,7 @@ public class SmartLinkPresenter implements InsertApi {
         UserSl userSl = getUserSlFromJson();
         smartLink.setUserSl(userSl);
         smartLink.setMessage("");
-        smartLinkApiService.callResponse(emitter);
+        smartLinkApiService.callResponse(emitter, Crud.CREATE);
     }
 
     private UserSl getUserSlFromJson() {
@@ -72,8 +94,15 @@ public class SmartLinkPresenter implements InsertApi {
     }
 
     @Override
-    public Call<ResponseBody> addData(RestApi restApi) {
-        return restApi.addSmartLink(smartLink);
+    public Call<ResponseBody> crudData(RestApi restApi, Crud crud) {
+        if (crud.equals(Crud.CREATE)) {
+            return restApi.addSmartLink(smartLink);
+        } else if (crud.equals(Crud.DELETE)) {
+            return restApi.deleteSmartLink(smartLink);
+        } else if (crud.equals(Crud.DELETE_ALL)) {
+            return restApi.deleteAll();
+        }
+        throw new IllegalArgumentException();
     }
 
     public interface SmartLinkView {
