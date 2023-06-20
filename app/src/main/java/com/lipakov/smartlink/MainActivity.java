@@ -1,11 +1,9 @@
 package com.lipakov.smartlink;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
-import android.widget.EditText;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
@@ -13,7 +11,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
@@ -48,9 +45,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private GoogleSignInClient googleSignInClient;
     private UserPresenter userPresenter;
     private Disposable userDisposable;
-    private EditText urlInput;
-    private AlertDialog alertDialog;
-    private ProgressDialog progressDialog;
     private final ActivityResultLauncher<Intent> signInActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), this::onActivityResult);
     @Override
     protected void onCreate(Bundle savedInstanceState) {

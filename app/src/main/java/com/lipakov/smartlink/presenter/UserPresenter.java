@@ -44,10 +44,12 @@ public class UserPresenter implements CrudApi {
                     smartLinkApiService.callResponse(emitter, Crud.CREATE);
         }).subscribeOn(Schedulers.from(executor))
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnComplete(() -> displayView.displayMainActivity(account.getGivenName()))
+                .doOnComplete(() -> {
+                    String displayName = account.getDisplayName();
+                    displayView.displayMainActivity(displayName);
+                })
                 .subscribe();
     }
-
     private void putUserSl(GoogleSignInAccount account) {
         Gson gson = new Gson();
         userSl.setLogin(account.getDisplayName());

@@ -30,11 +30,12 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.lipakov.smartlink.MainActivity;
 import com.lipakov.smartlink.R;
 import com.lipakov.smartlink.databinding.SmartLinkBinding;
+import com.lipakov.smartlink.fragment.SmartLinkFragment;
 import com.lipakov.smartlink.model.SmartLink;
 import com.lipakov.smartlink.presenter.SmartLinkPresenter;
-import com.lipakov.smartlink.utils.UtilsUI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -138,10 +139,17 @@ public class SmartLinkAdapter extends RecyclerView.Adapter<SmartLinkAdapter.Smar
 
         @Override
         public void showNotify(String notify) {
-            Toast toast = Toast.makeText(context, notify, Toast.LENGTH_SHORT);
-            TextView toastMessage = toast.getView().findViewById(android.R.id.message);
-            toastMessage.setTextColor(Color.CYAN);
-            toast.show();
+            Toast.makeText(context, notify, Toast.LENGTH_SHORT).show();
+            refreshSmartLinkFragment();
+        }
+
+        private void refreshSmartLinkFragment() {
+            MainActivity mainActivity = (MainActivity) context;
+            mainActivity.getSupportFragmentManager()
+                    .beginTransaction()
+                    .addToBackStack(null)
+                    .replace(R.id.smartLinkListFrame, new SmartLinkFragment())
+                    .commit();
         }
     }
 

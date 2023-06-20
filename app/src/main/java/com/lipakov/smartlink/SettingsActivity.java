@@ -1,6 +1,9 @@
 package com.lipakov.smartlink;
 
+import android.graphics.Color;
 import android.os.Bundle;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,6 +12,7 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.TwoStatePreference;
 
 import com.lipakov.smartlink.presenter.SmartLinkPresenter;
+import com.lipakov.smartlink.utils.UtilsUI;
 
 import java.util.Objects;
 
@@ -56,6 +60,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         @Override
         public void showNotify(String notify) {
+            Toast.makeText(requireContext(), notify, Toast.LENGTH_SHORT).show();
             deleteAllSmartLinkList.setChecked(false);
         }
     }

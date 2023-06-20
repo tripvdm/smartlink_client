@@ -63,8 +63,7 @@ public class SmartLinkPresenter implements CrudApi {
 
     @SuppressLint("CheckResult")
     public void deleteSmartLinkList() {
-        Observable.create((ObservableOnSubscribe<SmartLink>) emitter ->
-                        smartLinkApiService.callResponse(emitter, Crud.DELETE_ALL))
+        Observable.create((ObservableOnSubscribe<SmartLink>) emitter -> smartLinkApiService.callResponse(emitter, Crud.DELETE_ALL))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnComplete(() -> smartLinkView.showNotify(context.getString(R.string.delete_all_links)))

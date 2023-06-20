@@ -1,6 +1,7 @@
 package com.lipakov.smartlink.fragment;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.res.ColorStateList;
 import android.os.Build;
 import android.os.Bundle;
@@ -50,7 +51,8 @@ public class SmartLinkFragment extends Fragment implements SmartLinkPresenter.Sm
     /*TODO*/
     private FloatingActionButton addUrlFab;
     private SwipeRefreshLayout swipeContainer;
-
+    private AlertDialog alertDialog;
+    private ProgressDialog progressDialog;
     @SuppressLint("FragmentLiveDataObserve")
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         smartLinkViewModel = new ViewModelProvider(this).get(SmartLinkViewModel.class);
@@ -121,15 +123,25 @@ public class SmartLinkFragment extends Fragment implements SmartLinkPresenter.Sm
 
     public void addUrl(LayoutInflater layoutInflater) {
         final View view = layoutInflater.inflate(R.layout.adding_of_link, null);
-        AlertDialog alertDialog = getAlertDialog(view);
+        alertDialog = getAlertDialog(view);
         Button positiveButton = activatePositiveButton(alertDialog);
         EditText inputUrl = view.findViewById(R.id.urlInput);
         addTextChangedListener(positiveButton, inputUrl);
         positiveButton.setOnClickListener(v -> {
             SmartLinkPresenter smartLinkPresenter = new SmartLinkPresenter(requireContext(), this);
             Editable url = inputUrl.getText();
+            alertDialog.dismiss();
+            progressDialog = getProgressDialog();
+            progressDialog.show();
             smartLinkPresenter.addSmartLink(url.toString());
         });
+    }
+
+    private ProgressDialog getProgressDialog() {
+        ProgressDialog progressDialog = new ProgressDialog(requireContext());
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setMessage("Ожидайте...");
+        return progressDialog;
     }
 
     private AlertDialog getAlertDialog(View view) {
@@ -179,6 +191,17 @@ public class SmartLinkFragment extends Fragment implements SmartLinkPresenter.Sm
         TextView toastMessage = toast.getView().findViewById(android.R.id.message);
         UtilsUI.setTextColor(notify, toastMessage);
         toast.show();
+        alertDialog.show();
+        progressDialog.dismiss();
+        refreshSmartLinkFragment();
+    }
+
+    private void refreshSmartLinkFragment() {
+        getParentFragmentManager()
+                .beginTransaction()
+                .addToBackStack(null)
+                .replace(R.id.smartLinkListFrame, new SmartLinkFragment())
+                .commit();
     }
 
     @Override
