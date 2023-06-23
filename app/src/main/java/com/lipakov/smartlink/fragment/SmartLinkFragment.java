@@ -40,7 +40,7 @@ import org.apache.commons.validator.routines.UrlValidator;
 import java.util.List;
 
 
-public class SmartLinkFragment extends Fragment implements SmartLinkPresenter.SmartLinkView {
+public class SmartLinkFragment extends Fragment implements SmartLinkPresenter.SmartLinkView, SmartLinkAdapter.RefreshingSmartLinkList {
     private static final String TAG = SmartLinkFragment.class.getSimpleName();
     private LinearProgressIndicator linearProgressIndicator;
     private SmartLinkAdapter smartLinkAdapter;
@@ -54,7 +54,6 @@ public class SmartLinkFragment extends Fragment implements SmartLinkPresenter.Sm
     private ProgressDialog progressDialog;
     @SuppressLint("FragmentLiveDataObserve")
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        setRetainInstance(true);
         smartLinkViewModel = new ViewModelProvider(this).get(SmartLinkViewModel.class);
         smartLinkViewModel.getSmartLinkMutableLiveData(requireContext()).observe(this, smartLinkListUpdateObserver);
     }
@@ -83,7 +82,7 @@ public class SmartLinkFragment extends Fragment implements SmartLinkPresenter.Sm
     }
 
     private void setupAdapter() {
-        smartLinkAdapter = new SmartLinkAdapter(requireContext());
+        smartLinkAdapter = new SmartLinkAdapter(requireContext(), this::refreshSmartLinkFragment);
         recyclerView.setAdapter(smartLinkAdapter);
         recyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 2));
     }
@@ -204,12 +203,9 @@ public class SmartLinkFragment extends Fragment implements SmartLinkPresenter.Sm
         }
     }
 
-    private void refreshSmartLinkFragment() {
-        getParentFragmentManager()
-                .beginTransaction()
-                .addToBackStack(null)
-                .replace(R.id.smartLinkListFrame, new SmartLinkFragment())
-                .commit();
+    @Override
+    public void refreshSmartLinkFragment() {
+        smartLinkViewModel.getRefreshingSmartLinkMutableLiveData(requireContext()).observe(this, smartLinkListUpdateObserver);
     }
 
     @Override

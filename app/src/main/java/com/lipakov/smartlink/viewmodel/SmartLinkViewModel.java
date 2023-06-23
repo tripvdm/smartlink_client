@@ -29,8 +29,7 @@ public class SmartLinkViewModel extends ViewModel {
 
     public MutableLiveData<List<SmartLink>> getSmartLinkMutableLiveData(Context context) {
         if (smartLinkMutableLiveData == null) {
-            userSl = getUserSl(context);
-            smartLinkMutableLiveData = loadMoviesData(userSl);
+            smartLinkMutableLiveData = getRefreshingSmartLinkMutableLiveData(context);
         }
         return smartLinkMutableLiveData;
     }

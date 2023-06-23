@@ -30,10 +30,8 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
-import com.lipakov.smartlink.MainActivity;
 import com.lipakov.smartlink.R;
 import com.lipakov.smartlink.databinding.SmartLinkBinding;
-import com.lipakov.smartlink.fragment.SmartLinkFragment;
 import com.lipakov.smartlink.model.SmartLink;
 import com.lipakov.smartlink.presenter.SmartLinkPresenter;
 
@@ -44,12 +42,14 @@ import java.util.List;
 public class SmartLinkAdapter extends RecyclerView.Adapter<SmartLinkAdapter.SmartLinkViewHolder> {
     private static final String TAG = SmartLinkAdapter.class.getSimpleName();
 
-    private List<SmartLink> smartLinkList;
+    private final List<SmartLink> smartLinkList;
 
     private final Context context;
 
-    public SmartLinkAdapter(Context context) {
+    private final RefreshingSmartLinkList refreshingSmartLinkList;
+    public SmartLinkAdapter(Context context, RefreshingSmartLinkList refreshingSmartLinkList) {
         this.context = context;
+        this.refreshingSmartLinkList = refreshingSmartLinkList;
         smartLinkList = new ArrayList<>();
     }
 
@@ -114,7 +114,7 @@ public class SmartLinkAdapter extends RecyclerView.Adapter<SmartLinkAdapter.Smar
     @SuppressLint("NotifyDataSetChanged")
     public void updateSmartLinkList(final List<SmartLink> smartLinkList) {
         this.smartLinkList.clear();
-        this.smartLinkList = smartLinkList;
+        this.smartLinkList.addAll(smartLinkList);
         notifyDataSetChanged();
     }
 
@@ -144,12 +144,7 @@ public class SmartLinkAdapter extends RecyclerView.Adapter<SmartLinkAdapter.Smar
         }
 
         private void refreshSmartLinkFragment() {
-            MainActivity mainActivity = (MainActivity) context;
-            mainActivity.getSupportFragmentManager()
-                    .beginTransaction()
-                    .addToBackStack(null)
-                    .replace(R.id.smartLinkListFrame, new SmartLinkFragment())
-                    .commit();
+            refreshingSmartLinkList.refreshSmartLinkFragment();
         }
     }
 
@@ -162,5 +157,9 @@ public class SmartLinkAdapter extends RecyclerView.Adapter<SmartLinkAdapter.Smar
             super.updateDrawState(ds);
             ds.setUnderlineText(false);
         }
+    }
+
+    public interface RefreshingSmartLinkList {
+        void refreshSmartLinkFragment();
     }
 }

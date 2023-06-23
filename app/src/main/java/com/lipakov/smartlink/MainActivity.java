@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -30,6 +31,8 @@ import com.lipakov.smartlink.databinding.ActivityMainBinding;
 import com.lipakov.smartlink.fragment.SmartLinkFragment;
 import com.lipakov.smartlink.model.UserSl;
 import com.lipakov.smartlink.presenter.UserPresenter;
+
+import java.util.List;
 
 import io.reactivex.disposables.Disposable;
 
@@ -103,11 +106,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void startObserverOfSmartLink() {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .addToBackStack(null)
-                .replace(R.id.smartLinkListFrame, new SmartLinkFragment())
-                .commit();
+        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        if (fragments.isEmpty()) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .addToBackStack(null)
+                    .replace(R.id.smartLinkListFrame, new SmartLinkFragment())
+                    .commit();
+        }
     }
 
     private Disposable addUser(Task<GoogleSignInAccount> task) throws ApiException {
