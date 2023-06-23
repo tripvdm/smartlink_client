@@ -23,8 +23,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -50,10 +48,8 @@ public class SmartLinkAdapter extends RecyclerView.Adapter<SmartLinkAdapter.Smar
 
     private final Context context;
 
-    private RefreshingSmartLinkList refreshingSmartLinkList;
-    public SmartLinkAdapter(Context context, RefreshingSmartLinkList refreshingSmartLinkList) {
+    public SmartLinkAdapter(Context context) {
         this.context = context;
-        this.refreshingSmartLinkList = refreshingSmartLinkList;
         smartLinkList = new ArrayList<>();
     }
 
@@ -118,7 +114,7 @@ public class SmartLinkAdapter extends RecyclerView.Adapter<SmartLinkAdapter.Smar
     @SuppressLint("NotifyDataSetChanged")
     public void updateSmartLinkList(final List<SmartLink> smartLinkList) {
         this.smartLinkList.clear();
-        this.smartLinkList.addAll(smartLinkList);
+        this.smartLinkList = smartLinkList;
         notifyDataSetChanged();
     }
 
@@ -148,7 +144,12 @@ public class SmartLinkAdapter extends RecyclerView.Adapter<SmartLinkAdapter.Smar
         }
 
         private void refreshSmartLinkFragment() {
-            refreshingSmartLinkList.refreshSmartLinkFragment();
+            MainActivity mainActivity = (MainActivity) context;
+            mainActivity.getSupportFragmentManager()
+                    .beginTransaction()
+                    .addToBackStack(null)
+                    .replace(R.id.smartLinkListFrame, new SmartLinkFragment())
+                    .commit();
         }
     }
 
@@ -161,9 +162,5 @@ public class SmartLinkAdapter extends RecyclerView.Adapter<SmartLinkAdapter.Smar
             super.updateDrawState(ds);
             ds.setUnderlineText(false);
         }
-    }
-
-    public interface RefreshingSmartLinkList {
-        void refreshSmartLinkFragment();
     }
 }
