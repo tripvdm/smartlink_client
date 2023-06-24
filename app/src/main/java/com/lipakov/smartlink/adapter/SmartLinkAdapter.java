@@ -2,8 +2,10 @@ package com.lipakov.smartlink.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.text.Html;
 import android.text.Spannable;
@@ -23,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -124,7 +127,8 @@ public class SmartLinkAdapter extends RecyclerView.Adapter<SmartLinkAdapter.Smar
         public SmartLinkViewHolder(@NonNull SmartLinkBinding smartLinkBinding) {
             super(smartLinkBinding.getRoot());
             this.smartLinkBinding = smartLinkBinding;
-            smartLinkBinding.smartLink.setOnLongClickListener(v -> {
+            CardView cardView = smartLinkBinding.smartLink;
+            cardView.setOnLongClickListener(v -> {
                 new AlertDialog.Builder(itemView.getContext())
                         .setMessage(Html.fromHtml("<font color='#9E5B37'>Вы действительно хотите удалить ссылку?</font>"))
                         .setNegativeButton(R.string.cancel, ((dialog, which) -> {}))
@@ -134,6 +138,12 @@ public class SmartLinkAdapter extends RecyclerView.Adapter<SmartLinkAdapter.Smar
                             smartLinkPresenter.deleteSmartLink(smartLinkList.get(adapterPosition));
                         }).show();
                 return false;
+            });
+            TextView contactNumber = smartLinkBinding.contactNumberOfSmartLink;
+            contactNumber.setOnClickListener(v -> {
+                Intent callIntent = new Intent(Intent.ACTION_CALL);
+                callIntent.setData(Uri.parse("tel:" + contactNumber.getText()));
+                context.startActivity(callIntent);
             });
         }
 

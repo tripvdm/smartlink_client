@@ -30,8 +30,4 @@ public class Price implements FinderOfValue {
         return "";
     }
 
-    /*TODO Nlp searcher*/
-    class NlpSearcher {
-
-    }
 }

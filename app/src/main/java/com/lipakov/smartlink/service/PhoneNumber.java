@@ -13,6 +13,11 @@ public class PhoneNumber implements FinderOfValue {
             String phoneNumber = findPhoneNumber(element);
             if (!phoneNumber.isBlank()) return phoneNumber;
         }
+        for (Element element : document.getAllElements()) {
+            String text = element.text();
+            String[] tokens = text.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
+            return findPhoneNumber(tokens);
+        }
         return "";
     }
 
@@ -35,7 +40,6 @@ public class PhoneNumber implements FinderOfValue {
 
     /**
      * <p>Проверяет на телефон
-     * (валюта должна быть одна а чисел может быть несколько)<p/>
      * @param tokens значение внутри html тега
      * @return текст classa с phone, если находит, иначе "", если не находит
      * */

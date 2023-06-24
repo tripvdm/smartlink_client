@@ -3,7 +3,7 @@
     <PreferenceCategory app:title="О приложении">
         <PreferenceScreen
             android:key="about"
-            android:summary="Данное приложение..."/>
+            android:summary="Данное приложение позволяет сохранять умные ссылки и отображать необходимую информацию, которую вы могли бы получить, зайдя по этой ссылки. А именно фото, цену услуги или товара, а также номер телефона."/>
     </PreferenceCategory>
     <PreferenceCategory app:title="Настройки">
         <SwitchPreference
